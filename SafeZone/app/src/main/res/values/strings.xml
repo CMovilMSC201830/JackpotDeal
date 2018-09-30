@@ -2,8 +2,9 @@
     <string name="app_name">Safe Zone</string>
     <string name="login">Iniciar Sesión</string>
     <string name="logingoole">Ingresar con Google</string>
-    <string name="signup">Registratse</string>
+    <string name="signup">Registrarse</string>
     <string name="hintname">Nombre de usuario o email</string>
     <string name="hintpass">Contraseña</string>
     <string name="or">o</string>
+    <string name="title_activity_home">Map</string>
 </resources>
