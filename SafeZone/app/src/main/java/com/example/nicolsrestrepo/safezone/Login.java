@@ -1,5 +1,6 @@
 package com.example.nicolsrestrepo.safezone;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -27,7 +28,7 @@ public class Login extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(verifyLogin())
-                    login = login;
+                    startActivity(new Intent(getBaseContext(),HomeActivity.class));
             }
         });
     }
