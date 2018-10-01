@@ -12,4 +12,5 @@
     <string name="allfields">Por favor llene todos los campos</string>
     <string name="invalidaccount">Nombre de usuario o contraseña invalidos</string>
     <string name="title_activity_home">Map</string>
-</resources>
+    <string name="nomatchinspwrds">No coinciden las contraseñas</string>
+   </resources>
