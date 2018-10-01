@@ -13,4 +13,8 @@
     <string name="invalidaccount">Nombre de usuario o contraseña invalidos</string>
     <string name="title_activity_home">Map</string>
     <string name="nomatchinspwrds">No coinciden las contraseñas</string>
+
+    <string name="boton_notificarContacto">Notificar a contacto</string>
+    <string name="boton_notificarEvento">Notificar evento</string>
+    <string name="boton_emergencia">Botón de emergencia</string>
    </resources>
