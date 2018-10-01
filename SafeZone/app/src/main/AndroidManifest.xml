@@ -24,10 +24,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".Login" />
-<<<<<<< HEAD
         <activity android:name=".SignUp"></activity>
-=======
->>>>>>> a6c512b98cfdc005f60d629c303485673551ec70
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
