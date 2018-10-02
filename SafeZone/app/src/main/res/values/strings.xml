@@ -26,5 +26,7 @@
     <string name="boton_event_extorsion">Extorsión</string>
 
     <string name="notify">Notificar</string>
+    <string name="title_activity_profile">ProfileActivity</string>
+    <string name="test_username">Pedro Perez</string>
 
 </resources>

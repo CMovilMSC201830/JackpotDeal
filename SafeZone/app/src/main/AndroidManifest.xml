@@ -43,7 +43,10 @@
         <activity
             android:name=".NotifyEventActivity"
             android:theme="@style/AppTheme.CustomTheme" />
-        <activity android:name=".Notify_Emergency_Contact"></activity>
+        <activity android:name=".Notify_Emergency_Contact" />
+        <activity
+            android:name=".ProfileActivity"
+            android:label="@string/title_activity_profile"></activity>
     </application>
 
 </manifest>
