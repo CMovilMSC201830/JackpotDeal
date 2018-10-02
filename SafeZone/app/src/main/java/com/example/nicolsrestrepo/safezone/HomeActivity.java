@@ -36,6 +36,7 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
         imageButton_notifyContact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                startActivity(new Intent(getBaseContext(),Notify_Emergency_Contact.class));
 
             }
         });
