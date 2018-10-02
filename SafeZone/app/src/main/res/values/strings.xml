@@ -25,4 +25,6 @@
     <string name="boton_event_secuestro">Secuestro</string>
     <string name="boton_event_extorsion">Extorsión</string>
 
+    <string name="notify">Notificar</string>
+
 </resources>
