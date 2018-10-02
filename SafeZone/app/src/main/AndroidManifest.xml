@@ -40,6 +40,8 @@
         <activity
             android:name=".HomeActivity"
             android:label="@string/title_activity_home" />
+        <activity android:name=".NotifyEventActivity"
+            android:theme="@style/AppTheme.CustomTheme"></activity>
     </application>
 
 </manifest>

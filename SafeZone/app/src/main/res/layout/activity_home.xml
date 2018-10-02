@@ -33,6 +33,7 @@
             android:orientation="vertical"
             android:gravity="center">
             <ImageButton
+                android:id="@+id/button_notifyContact"
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:layout_marginLeft="15dp"
@@ -56,6 +57,7 @@
             android:orientation="vertical"
             android:gravity="center">
             <ImageButton
+                android:id="@+id/button_notifyEvent"
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:layout_marginLeft="15dp"
@@ -79,6 +81,7 @@
             android:orientation="vertical"
             android:gravity="center">
             <ImageButton
+                android:id="@+id/button_emergencyButton"
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:layout_marginLeft="15dp"

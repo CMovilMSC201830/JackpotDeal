@@ -1,7 +1,10 @@
 package com.example.nicolsrestrepo.safezone;
 
+import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageButton;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -13,6 +16,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class HomeActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    private ImageButton imageButton_notifyContact;
+    private ImageButton imageButton_notifyEvent;
+    private ImageButton imageButton_emergencyButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +28,32 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        imageButton_notifyContact = findViewById(R.id.button_notifyContact);
+        imageButton_notifyEvent = findViewById(R.id.button_notifyEvent);
+        imageButton_emergencyButton = findViewById(R.id.button_emergencyButton);
+
+        imageButton_notifyContact.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        imageButton_notifyEvent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(view.getContext(),NotifyEventActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        imageButton_emergencyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
     }
 
 
@@ -38,9 +70,11 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        // Add a marker in Bogota and move the camera
+        LatLng bogota = new LatLng(4.65, -74.05);
+        mMap.addMarker(new MarkerOptions().position(bogota).title("Marcador en Bogotá"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(bogota));
+
+        mMap.moveCamera(CameraUpdateFactory.zoomTo(10));
     }
 }

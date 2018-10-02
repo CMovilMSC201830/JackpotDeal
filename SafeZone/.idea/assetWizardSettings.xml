@@ -29,13 +29,26 @@
                                           </PersistentState>
                                         </value>
                                       </entry>
+                                      <entry key="image">
+                                        <value>
+                                          <PersistentState>
+                                            <option name="values">
+                                              <map>
+                                                <entry key="trimmed" value="true" />
+                                              </map>
+                                            </option>
+                                          </PersistentState>
+                                        </value>
+                                      </entry>
                                     </map>
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="outputName" value="ic_emergency_button" />
+                                      <entry key="assetType" value="IMAGE" />
+                                      <entry key="imageAsset" value="D:\Desktop\Iconos\hand-holding-up-a-gun.png" />
+                                      <entry key="outputName" value="ic_event_intento_homicidio" />
                                       <entry key="theme" value="CUSTOM" />
-                                      <entry key="themeColor" value="dd4b39" />
+                                      <entry key="themeColor" value="4871a6" />
                                     </map>
                                   </option>
                                 </PersistentState>

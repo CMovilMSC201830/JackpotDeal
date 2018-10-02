@@ -17,4 +17,12 @@
     <string name="boton_notificarContacto">Notificar a contacto</string>
     <string name="boton_notificarEvento">Notificar evento</string>
     <string name="boton_emergencia">Botón de emergencia</string>
-   </resources>
+
+    <string name="boton_event_hurtoPersonas">Hurto a personas</string>
+    <string name="boton_event_hurtoEmpresas">Hurto a empresas</string>
+    <string name="boton_event_intentoHomicidio">Intento de homicidio</string>
+    <string name="boton_event_homicidio">Homicidio</string>
+    <string name="boton_event_secuestro">Secuestro</string>
+    <string name="boton_event_extorsion">Extorsión</string>
+
+</resources>
