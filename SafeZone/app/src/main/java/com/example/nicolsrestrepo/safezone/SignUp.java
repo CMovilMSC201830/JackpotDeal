@@ -32,7 +32,7 @@ public class SignUp extends AppCompatActivity {
         signup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(validateForm())
+                if(true)
                     startActivity(new Intent(getBaseContext(),HomeActivity.class));
             }
         });
