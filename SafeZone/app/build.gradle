@@ -1,8 +1,9 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion '28.0.2'
+    buildToolsVersion '28.0.3'
     defaultConfig {
         applicationId "com.example.nicolsrestrepo.safezone"
         minSdkVersion 15
@@ -29,4 +30,5 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:15.0.0'
     implementation "com.google.android.gms:play-services-location:15.0.0"
     testImplementation 'junit:junit:4.12'
+    implementation 'com.google.firebase:firebase-auth:16.0.1'
 }
