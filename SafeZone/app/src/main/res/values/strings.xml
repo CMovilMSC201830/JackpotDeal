@@ -3,11 +3,14 @@
     <string name="login">Iniciar Sesión</string>
     <string name="logingoole">Ingresar con Google</string>
     <string name="signup">Registrarse</string>
-    <string name="hintname">Nombre de usuario o email</string>
+
+    <string name="hintemail">Correo electrónico</string>
+    <string name="hintname">Nombre completo</string>
     <string name="hintphone">Número de teléfono</string>
     <string name="hintpass">Contraseña</string>
     <string name="hintconfirmpass">Confirme contraseña</string>
     <string name="termsconfirmation">Estoy de acuerdo con los terminos y condiciones</string>
+
     <string name="or">o</string>
     <string name="allfields">Por favor llene todos los campos</string>
     <string name="invalidaccount">Nombre de usuario o contraseña invalidos</string>
