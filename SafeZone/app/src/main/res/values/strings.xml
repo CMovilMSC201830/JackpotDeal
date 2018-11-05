@@ -32,5 +32,8 @@
     <string name="title_activity_profile">ProfileActivity</string>
     <string name="test_username">Pedro Perez</string>
     <string name="whereareu">¿A donde te diriges?</string>
+    <string name="profileUpdate">Mi Perfil</string>
+    <string name="logout">Cerrar Sesión</string>
+    <string name="myTrips">Mis Viajes</string>
 
 </resources>

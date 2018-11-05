@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -11,12 +13,16 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -44,21 +50,35 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-public class HomeActivity extends FragmentActivity implements OnMapReadyCallback {
+public class HomeActivity extends AppCompatActivity implements OnMapReadyCallback {
     private final static int LOCATION_PERMISSON = 0;
     private GoogleMap mMap;
     private ImageButton imageButton_notifyContact;
     private ImageButton imageButton_notifyEvent;
     private ImageButton imageButton_emergencyButton;
+    private ImageView screenShoot;
     private LocationRequest mLocationRequest;
     private LocationCallback mLocationCallback;
     private FusedLocationProviderClient mFusedLocationClient;
@@ -66,6 +86,13 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
     private int REQUEST_CHECK_SETTINGS = 1;
     private EditText route;
     private Marker m;
+    private FirebaseAuth mAuth;
+    private Bitmap trip;
+    private StorageReference mStorageRef;
+    private FirebaseFirestore db;
+
+    private TripInformation tripInfo;
+    private Date current;
 
     //GEOCODER LIMITS
     public static final double lowerLeftLatitude = 1.396967;
@@ -74,6 +101,7 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
     public static final double upperRigthLongitude = -71.869905;
 
     private int first;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,15 +110,22 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        m=null;
-        first=0;
+
+        db = FirebaseFirestore.getInstance();
+        mStorageRef = FirebaseStorage.getInstance().getReference();
+        getSupportActionBar().setTitle("Safe Zone");
+        mAuth = FirebaseAuth.getInstance();
+        m = null;
+        end=null;
+        first = 0;
+        current = new Date();
+        tripInfo = new TripInformation();
         route = findViewById(R.id.routeText);
         mLocationRequest = createLocationRequest();
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         imageButton_notifyContact = findViewById(R.id.button_notifyContact);
         imageButton_notifyEvent = findViewById(R.id.button_notifyEvent);
         imageButton_emergencyButton = findViewById(R.id.button_emergencyButton);
-
         mLocationCallback = new LocationCallback() {
 
             @Override
@@ -99,7 +134,7 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
                 if (location != null) {
 
                     LatLng actual = new LatLng(location.getLatitude(), location.getLongitude());
-                    if(first==0) {
+                    if (first == 0) {
 
                         m = mMap.addMarker(new MarkerOptions().position(actual)
                                 .icon(BitmapDescriptorFactory
@@ -109,8 +144,10 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
                         mMap.moveCamera(CameraUpdateFactory.newLatLng(actual));
                     }
                     m.setPosition(actual);
-                    first=1;
+                    first = 1;
                     begin = actual;
+                    if(end != null)
+                    checkIfEnd();
                 }
             }
         };
@@ -118,7 +155,7 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
         imageButton_notifyContact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getBaseContext(),Notify_Emergency_Contact.class));
+                startActivity(new Intent(getBaseContext(), Notify_Emergency_Contact.class));
 
             }
         });
@@ -126,7 +163,7 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
         imageButton_notifyEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(view.getContext(),NotifyEventActivity.class);
+                Intent intent = new Intent(view.getContext(), NotifyEventActivity.class);
                 startActivity(intent);
             }
         });
@@ -156,7 +193,32 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
+
+
 //CALLBACKS
+
+
+    //MENU OPTIONS
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.safezonemenu, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        int itemClicked = item.getItemId();
+        if(itemClicked == R.id.logout){
+            mAuth.signOut();
+            Intent intent = new Intent(HomeActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        }else if (itemClicked == R.id.profileUpdate){
+        }
+        else if (itemClicked == R.id.myTrips){
+            startActivity(new Intent(HomeActivity.this,MyTrips.class));
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -189,11 +251,13 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
         if (Utils.requestPermission(this, Manifest.permission.ACCESS_FINE_LOCATION, "Se necesita acceder a la cámara", LOCATION_PERMISSON))
             locateMap();
     }
+
     @Override
     protected void onResume() {
         super.onResume();
         locateMap();
     }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -208,6 +272,7 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         return mLocationRequest;
     }
+
     public void locateMap() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             LocationSettingsRequest.Builder builder = new
@@ -235,7 +300,8 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
                                 resolvable.startResolutionForResult(HomeActivity.this,
                                         REQUEST_CHECK_SETTINGS);
                             } catch (IntentSender.SendIntentException sendEx) {
-                            } break;
+                            }
+                            break;
                         case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
                             break;
                     }
@@ -244,9 +310,11 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
     }
-    private void stopLocationUpdates(){
+
+    private void stopLocationUpdates() {
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
     }
+
     private void geoCoderFind() {
         Geocoder mGeocoder = new Geocoder(getBaseContext());
         String addressString = route.getText().toString();
@@ -269,10 +337,13 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
                                         .defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
                         mMap.moveCamera(CameraUpdateFactory.zoomTo(10));
                         end = position;
-                        LatLng mitad = new LatLng( (begin.latitude+end.latitude)/2 ,(begin.longitude+end.longitude)/2 );
+                        tripInfo.setDestino(addressResult.getAddressLine(0));
+                        tripInfo.setDistancia(String.format("%.2f", calculateDistance()/1000));
+                        LatLng mitad = new LatLng((begin.latitude + end.latitude) / 2, (begin.longitude + end.longitude) / 2);
                         mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
-
                         routeCalculate();
+                        current = new Date();
+
 
                     }
                 } else {
@@ -287,10 +358,87 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void routeCalculate() {
-        RouteCalculator rc = new RouteCalculator(begin,end,mMap);
+        RouteCalculator rc = new RouteCalculator(begin, end, mMap);
         String url = rc.requestUrl();
         RouteCalculator.TaskRequestDirections taskRequestDirections = new RouteCalculator.TaskRequestDirections();
         taskRequestDirections.execute(url);
     }
+    private void checkIfEnd() {
+        float mts_to_end = 10;
+        float distance = calculateDistance();
+        if(calculateDistance() <= mts_to_end){
+            Toast.makeText(getBaseContext(),"¡Gracias por utilizas Safe Zone para llegar a tu destino!",Toast.LENGTH_LONG).show();
+            savePicture();
+        }
+
+    }
+
+
+
+    //Distance in mts
+    private float calculateDistance(){
+        Location loc1 = new Location("");
+        loc1.setLatitude(begin.latitude);
+        loc1.setLongitude(begin.longitude);
+
+        Location loc2 = new Location("");
+        loc2.setLatitude(end.latitude);
+        loc2.setLongitude(end.longitude);
+
+        return loc1.distanceTo(loc2);
+    }
+
+    private void savePicture() {
+        takeScreen();
+        end = null;
+
+    }
+
+    //Google Map ScreenShot
+    public void takeScreen(){
+        GoogleMap.SnapshotReadyCallback callback = new GoogleMap.SnapshotReadyCallback() {
+            @Override
+            public void onSnapshotReady(Bitmap bitmap) {
+                trip = bitmap;
+                uploadPicture(trip);
+            }
+        };
+        mMap.snapshot(callback);
+
+    }
+
+    private void uploadPicture(Bitmap bitmap) {
+        FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
+        String nameFile = String.valueOf(System.currentTimeMillis());
+        StorageReference imageRef = mStorageRef.child(currentFirebaseUser.getUid()+"/MyTrips/"+nameFile+".jpg");
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] data = baos.toByteArray();
+        UploadTask uploadTask = imageRef.putBytes(data);
+        trip = null;
+        saveInFirestore(currentFirebaseUser.getUid(),nameFile);
+
+
+    }
+
+    public void saveInFirestore(String uid, String nameFile){
+        Date now = new Date();
+        double difference = now.getTime() - current.getTime();
+        difference = difference/1000;
+        difference =  difference/60;
+        tripInfo.setTime(String.format("%.2f", difference));
+        Log.i("difference",""+difference/1000);
+        db.collection("MyTrips-"+uid).document(nameFile).set(tripInfo);
+
+        mMap.clear();
+        mMap.addMarker(new MarkerOptions().position(begin)
+                .icon(BitmapDescriptorFactory
+                        .fromResource(R.drawable.carmarker)));
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(begin));
+        mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
+    }
+
+
 }
 
