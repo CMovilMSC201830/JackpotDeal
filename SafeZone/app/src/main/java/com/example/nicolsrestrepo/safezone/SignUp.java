@@ -17,6 +17,9 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
 
 public class SignUp extends AppCompatActivity {
 
@@ -27,13 +30,14 @@ public class SignUp extends AppCompatActivity {
     public Button signup;
 
     private FirebaseAuth mAuth;
-
+    private FirebaseFirestore db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
         mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         editText_email = findViewById(R.id.signupmail);
         editText_name = findViewById(R.id.signupname);
@@ -115,7 +119,6 @@ public class SignUp extends AppCompatActivity {
 
                             UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                                     .setDisplayName(editText_name.getText().toString())
-                                    //.setPhotoUri(Uri.parse("https://example.com/jane-q-user/profile.jpg"))
                                     .build();
 
                             user.updateProfile(profileUpdates)
@@ -129,6 +132,7 @@ public class SignUp extends AppCompatActivity {
                                             }
                                         }
                                     });
+                                    savePhone();
 
 
 
@@ -144,5 +148,13 @@ public class SignUp extends AppCompatActivity {
                     }
                 });
     }
+
+    public void savePhone(){
+        FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
+        HashMap<String,String> phone = new HashMap<String,String>();
+        phone.put("phone",editText_phone.getText().toString());
+        db.collection("MyTrips-"+currentFirebaseUser.getUid()).document("Phone Number").set(phone);
+    }
+
 
 }

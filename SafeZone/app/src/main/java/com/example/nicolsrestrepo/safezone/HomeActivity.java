@@ -213,6 +213,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         }else if (itemClicked == R.id.profileUpdate){
+            startActivity(new Intent(HomeActivity.this,UpdateProfile.class));
         }
         else if (itemClicked == R.id.myTrips){
             startActivity(new Intent(HomeActivity.this,MyTrips.class));
