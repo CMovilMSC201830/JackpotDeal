@@ -5,27 +5,23 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.nicolsrestrepo.safezone.ObjetosNegocio.TripInformation;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -52,8 +48,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -61,19 +55,16 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 public class HomeActivity extends AppCompatActivity implements OnMapReadyCallback {
+
     private final static int LOCATION_PERMISSON = 0;
+
+    private final static String USERS_PATH = "usuarios";
+    private final static String TRIPS_PATH = "viajes";
+
     private GoogleMap mMap;
     private ImageButton imageButton_notifyContact;
     private ImageButton imageButton_notifyEvent;
@@ -428,7 +419,8 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         difference = difference/1000;
         difference =  difference/60;
         tripInfo.setTime(String.format("%.2f", difference));
-        db.collection("MyTrips-"+uid).document(nameFile).set(tripInfo);
+        db.collection(USERS_PATH).document(uid).collection(TRIPS_PATH).document(nameFile).set(tripInfo);
+        //db.collection("MyTrips-"+uid).document(nameFile).set(tripInfo);
 
         mMap.clear();
         mMap.addMarker(new MarkerOptions().position(begin)

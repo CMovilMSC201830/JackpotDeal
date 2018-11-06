@@ -1,4 +1,4 @@
-package com.example.nicolsrestrepo.safezone;
+package com.example.nicolsrestrepo.safezone.ObjetosNegocio;
 
 import org.json.JSONException;
 import org.json.JSONObject;
