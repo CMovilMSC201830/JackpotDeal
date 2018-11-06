@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.SparseBooleanArray;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -22,6 +23,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Notify_Emergency_Contact extends AppCompatActivity {
 
@@ -43,6 +45,8 @@ public class Notify_Emergency_Contact extends AppCompatActivity {
             "Emergency Contact 8","Emergency Contact 9","Emergency Contact 10","Emergency Contact 11"
     };
     */
+
+    List<Usuario> contactos = new ArrayList<>();
 
     Usuario usuarioActual = null;
 
@@ -66,6 +70,17 @@ public class Notify_Emergency_Contact extends AppCompatActivity {
             }
         });
 
+        ArrayAdapter<Usuario> adapter = new ArrayAdapter<Usuario>(thisContext, android.R.layout.simple_list_item_multiple_choice, contactos);
+        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        listView.setAdapter(adapter);
+        button_notificar.setOnClickListener(new Button.OnClickListener() {
+            @Override
+
+            public void onClick(View v) {
+                validateNotification();
+            }
+        });
+
         cargarDatosUsuario();
     }
 
@@ -80,16 +95,19 @@ public class Notify_Emergency_Contact extends AppCompatActivity {
                 if(usuario != null){
                     usuarioActual = usuario;
 
-                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(thisContext, android.R.layout.simple_list_item_multiple_choice, usuarioActual.getListaContactos());
-                    listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-                    listView.setAdapter(adapter);
-                    button_notificar.setOnClickListener(new Button.OnClickListener() {
-                        @Override
-
-                        public void onClick(View v) {
-                            validateNotification();
-                        }
-                    });
+                    for (String idUsuario:usuarioActual.getListaContactos()) {
+                        DocumentReference docRef = db.collection(USERS_PATH).document(idUsuario);
+                        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                Usuario usuario = documentSnapshot.toObject(Usuario.class);
+                                if(usuario != null){
+                                    contactos.add(usuario);
+                                    ((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
+                                }
+                            }
+                        });
+                    }
                 }
             }
         });
