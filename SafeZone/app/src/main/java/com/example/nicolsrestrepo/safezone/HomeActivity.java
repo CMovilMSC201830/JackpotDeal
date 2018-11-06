@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -39,6 +40,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
@@ -138,6 +140,13 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                     m = mMap.addMarker(new MarkerOptions().position(actual)
                             .icon(BitmapDescriptorFactory
                                     .fromResource(R.drawable.carmarker)));
+
+
+
+                    // setting a dummy location
+                    double danger_lat = 4.702465;
+                    double danger_lng = -74.041979;
+                    markDangerZone(danger_lat, danger_lng);
 
                     first = 1;
                     begin = actual;
@@ -429,6 +438,18 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mMap.moveCamera(CameraUpdateFactory.newLatLng(begin));
         mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
+    }
+
+    public void markDangerZone(double danger_lat, double danger_lng){
+        LatLng bogota = new LatLng(danger_lat, danger_lng);
+        CircleOptions circleOptions = new CircleOptions()
+                .center(bogota)
+                .radius(500) //metros
+                .strokeWidth(10)
+                .strokeColor(Color.BLUE)
+                .fillColor(Color.argb(128, 127, 0, 0))
+                .clickable(true);
+        mMap.addCircle(circleOptions);
     }
 
 
