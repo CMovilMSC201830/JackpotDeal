@@ -20,16 +20,38 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.nicolsrestrepo.safezone.ObjetosNegocio.Usuario;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public class Notify_Emergency_Contact extends AppCompatActivity {
+
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
+
+    private final static String USERS_PATH = "usuarios";
+
     private final int CONTACTS_PERMISSION = 1;
+
     public ListView list;
     private Button getChoice;
+
+    /*
     String[] listContent = {"Emergency Contact 1","Emergency Contact 2","Emergency Contact 3" ,
             "Emergency Contact 4","Emergency Contact 5","Emergency Contact 6","Emergency Contact 7",
             "Emergency Contact 8","Emergency Contact 9","Emergency Contact 10","Emergency Contact 11"
     };
+    */
+
+    Usuario usuarioActual = null;
+
+    String[] listContent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,16 +59,33 @@ public class Notify_Emergency_Contact extends AppCompatActivity {
         setContentView(R.layout.activity_notify__emergency__contact);
         list = (ListView) findViewById(R.id.emergency_contacts_lists);
 
-        getChoice = (Button) findViewById(R.id.getchoice);
-        ArrayAdapter < String > adapter = new ArrayAdapter < String > (this, android.R.layout.simple_list_item_multiple_choice, listContent);
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
-      list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        getChoice = (Button) findViewById(R.id.getchoice);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_multiple_choice, listContent);
+
+        list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         list.setAdapter(adapter);
         getChoice.setOnClickListener(new Button.OnClickListener() {
             @Override
 
             public void onClick(View v) {
                 validateNotification();
+            }
+        });
+    }
+
+    private void cargarDatosUsuario() {
+        DocumentReference docRef = db.collection(USERS_PATH).document("BJ");
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                Usuario usuario = documentSnapshot.toObject(Usuario.class);
+
+                if(usuario != null){
+                    usuarioActual = usuario;
+                }
             }
         });
     }
@@ -72,10 +111,10 @@ public class Notify_Emergency_Contact extends AppCompatActivity {
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                switch (which){
+                switch (which) {
                     case DialogInterface.BUTTON_POSITIVE:
-                        Toast.makeText(getBaseContext(),"Notificaciónes enviadas",Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(Notify_Emergency_Contact.this,HomeActivity.class));
+                        Toast.makeText(getBaseContext(), "Notificaciónes enviadas", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(Notify_Emergency_Contact.this, HomeActivity.class));
                         break;
 
                     case DialogInterface.BUTTON_NEGATIVE:
@@ -86,7 +125,7 @@ public class Notify_Emergency_Contact extends AppCompatActivity {
         };
 
         AlertDialog.Builder builder = new AlertDialog.Builder(Notify_Emergency_Contact.this);
-        builder.setMessage("Desea enviar notificación a "+ selected.size()+ " contactos?").setPositiveButton("Si", dialogClickListener)
+        builder.setMessage("Desea enviar notificación a " + selected.size() + " contactos?").setPositiveButton("Si", dialogClickListener)
                 .setNegativeButton("No", dialogClickListener).show();
     }
 }
