@@ -143,7 +143,11 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                         mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
                         mMap.moveCamera(CameraUpdateFactory.newLatLng(actual));
                     }
-                    m.setPosition(actual);
+                    m.remove();
+                    m = mMap.addMarker(new MarkerOptions().position(actual)
+                            .icon(BitmapDescriptorFactory
+                                    .fromResource(R.drawable.carmarker)));
+
                     first = 1;
                     begin = actual;
                     if(end != null)
@@ -328,10 +332,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                     LatLng position = new LatLng(addressResult.getLatitude(), addressResult.getLongitude());
                     if (mMap != null) {
                         mMap.clear();
-                        mMap.addMarker(new MarkerOptions().position(begin)
-                                .icon(BitmapDescriptorFactory
-                                        .fromResource(R.drawable.carmarker)));
-
                         mMap.addMarker(new MarkerOptions().position(position)
                                 .title(addressString)
                                 .icon(BitmapDescriptorFactory
@@ -359,7 +359,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void routeCalculate() {
-        RouteCalculator rc = new RouteCalculator(begin, end, mMap);
+        RouteCalculator rc = new RouteCalculator(begin.latitude, begin.longitude,end.latitude,end.longitude,mMap);
         String url = rc.requestUrl();
         RouteCalculator.TaskRequestDirections taskRequestDirections = new RouteCalculator.TaskRequestDirections();
         taskRequestDirections.execute(url);
@@ -428,7 +428,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         difference = difference/1000;
         difference =  difference/60;
         tripInfo.setTime(String.format("%.2f", difference));
-        Log.i("difference",""+difference/1000);
         db.collection("MyTrips-"+uid).document(nameFile).set(tripInfo);
 
         mMap.clear();

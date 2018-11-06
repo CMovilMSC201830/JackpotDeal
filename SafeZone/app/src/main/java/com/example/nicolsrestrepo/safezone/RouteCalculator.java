@@ -25,21 +25,26 @@ import java.util.List;
 public class RouteCalculator {
 
 
-    private LatLng begin;
-    private LatLng end;
+    private double beginlatitude;
+    private double beginlongitud;
+    private double endlatitude;
+    private double endlongitud;
     private static GoogleMap mMap;
 
-    public RouteCalculator(LatLng begin, LatLng end, GoogleMap map) {
-        this.begin = begin;
-        this.end = end;
-        this.mMap = map;
+    public RouteCalculator(double beginlatitude, double beginlongitud, double endlatitude, double endlongitud,GoogleMap mMap) {
+        this.beginlatitude = beginlatitude;
+        this.beginlongitud = beginlongitud;
+        this.endlatitude = endlatitude;
+        this.endlongitud = endlongitud;
+        this.mMap = mMap;
     }
 
     public String requestUrl(){
+        Log.i("mapRef","2 "+mMap);
         //Value of origin
-        String str_org = "origin=" + begin.latitude +","+begin.longitude;
+        String str_org = "origin=" + beginlatitude +","+beginlongitud;
         //Value of destination
-        String str_dest = "destination=" + end.latitude+","+end.longitude;
+        String str_dest = "destination=" + endlatitude+","+endlongitud;
         //Set value enable the sensor
         String sensor = "sensor=false";
         //Mode for find direction
