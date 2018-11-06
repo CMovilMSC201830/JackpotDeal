@@ -6,19 +6,34 @@
     android:layout_height="match_parent"
     tools:context=".Notify_Emergency_Contact">
 
-    <ListView
-        android:id="@+id/emergency_contacts_lists"
-        android:layout_width="377dp"
-        android:layout_height="490dp"
+    <Button
+        android:id="@+id/button_agregarContacto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+        android:text="@string/button_agregarContacto"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" >
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ListView
+        android:id="@+id/emergency_contacts_lists"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp"
+        android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+        app:layout_constraintBottom_toTopOf="@+id/getchoice"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_agregarContacto">
 
 
     </ListView>
@@ -26,13 +41,12 @@
     <Button
         android:id="@+id/getchoice"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/yellow"
         android:text="@string/notify"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/emergency_contacts_lists"
-        android:background="@color/yellow"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </android.support.constraint.ConstraintLayout>

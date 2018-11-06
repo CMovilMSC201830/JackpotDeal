@@ -17,7 +17,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.nicolsrestrepo.safezone.ObjetosNegocio.Usuario;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -43,6 +45,8 @@ public class UpdateProfile extends AppCompatActivity {
     private FirebaseUser firebaseUser;
     private FirebaseFirestore db;
 
+    private final static String USERS_PATH = "usuarios";
+
     private TextView tvname,tvphone,tvpassword,tvconfirpw,tvmail;
     private ImageView profilePic;
     private Button camera,gallery,update;
@@ -55,6 +59,8 @@ public class UpdateProfile extends AppCompatActivity {
 
     private static final int IMAGE_PICKER_REQUEST = 100;
     private static final int REQUEST_IMAGE_CAPTURE = 101;
+
+    private Usuario mUsuario = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,17 +118,23 @@ public class UpdateProfile extends AppCompatActivity {
             email = firebaseUser.getEmail();
             name = firebaseUser.getDisplayName();
         }
-        DocumentReference docRef = db.collection("MyTrips-"+firebaseUser.getUid())
-                .document("Phone Number");
 
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        update.setEnabled(false);
+        tvphone.setText(R.string.cargando);
+        DocumentReference docRef = db.collection(USERS_PATH)
+                .document(firebaseUser.getUid());
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        tvphone.setText((String)document.get("phone"));
-                    }
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                Usuario usuario = documentSnapshot.toObject(Usuario.class);
+                mUsuario = usuario;
+                update.setEnabled(true);
+
+                if(usuario.getTelefono().isEmpty()){
+                    tvphone.setText("");
+                    //Toast.makeText(getBaseContext(),"Teléfono no encontrado",Toast.LENGTH_SHORT).show();
+                }else{
+                    tvphone.setText(usuario.getTelefono());
                 }
             }
         });
@@ -131,7 +143,6 @@ public class UpdateProfile extends AppCompatActivity {
         tvmail.setText(email);
         if(savedInstanceState == null) {
             loadPicture();
-
         }
     }
 
@@ -228,9 +239,9 @@ public class UpdateProfile extends AppCompatActivity {
                     }
                 });
 
-        HashMap<String,String> phone = new HashMap<String,String>();
-        phone.put("phone",tvphone.getText().toString());
-        db.collection("MyTrips-"+firebaseUser.getUid()).document("Phone Number").set(phone);
+        mUsuario.setTelefono(tvphone.getText().toString());
+
+        db.collection(USERS_PATH).document(firebaseUser.getUid()).set(mUsuario);
 
         startActivity(new Intent(UpdateProfile.this,HomeActivity.class));
     }

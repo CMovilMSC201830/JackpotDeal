@@ -35,5 +35,8 @@
     <string name="profileUpdate">Mi Perfil</string>
     <string name="logout">Cerrar Sesión</string>
     <string name="myTrips">Mis Viajes</string>
+    <string name="cargando">Cargando...</string>
+    <string name="input_telefono">Número de teléfono</string>
+    <string name="button_agregarContacto">Agregar Contacto</string>
 
 </resources>

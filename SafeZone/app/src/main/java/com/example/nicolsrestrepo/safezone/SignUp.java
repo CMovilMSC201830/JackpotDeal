@@ -11,6 +11,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.nicolsrestrepo.safezone.ObjetosNegocio.Usuario;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -24,6 +25,8 @@ import java.util.HashMap;
 public class SignUp extends AppCompatActivity {
 
     private final static String TAG = "LogSignUp";
+
+    private final static String USERS_PATH = "usuarios";
 
     public EditText editText_email, editText_name, editText_phone, editText_pass, editText_conf_pass;
     public CheckBox checkbox;
@@ -132,7 +135,7 @@ public class SignUp extends AppCompatActivity {
                                             }
                                         }
                                     });
-                                    savePhone();
+                            create_DBUser();
 
 
 
@@ -149,11 +152,10 @@ public class SignUp extends AppCompatActivity {
                 });
     }
 
-    public void savePhone(){
-        FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
-        HashMap<String,String> phone = new HashMap<String,String>();
-        phone.put("phone",editText_phone.getText().toString());
-        db.collection("MyTrips-"+currentFirebaseUser.getUid()).document("Phone Number").set(phone);
+    public void create_DBUser(){
+        FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        Usuario nuevoUsuario = new Usuario(editText_phone.getText().toString());
+        db.collection(USERS_PATH).document(currentFirebaseUser.getUid()).set(nuevoUsuario);
     }
 
 
