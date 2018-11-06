@@ -154,7 +154,7 @@ public class SignUp extends AppCompatActivity {
 
     public void create_DBUser(){
         FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        Usuario nuevoUsuario = new Usuario(editText_phone.getText().toString());
+        Usuario nuevoUsuario = new Usuario(editText_phone.getText().toString(),currentFirebaseUser.getEmail());
         db.collection(USERS_PATH).document(currentFirebaseUser.getUid()).set(nuevoUsuario);
     }
 

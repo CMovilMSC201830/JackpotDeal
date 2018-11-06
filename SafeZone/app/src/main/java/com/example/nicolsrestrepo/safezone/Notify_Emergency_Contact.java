@@ -1,16 +1,9 @@
 package com.example.nicolsrestrepo.safezone;
 
-import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.provider.ContactsContract;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.SparseBooleanArray;
@@ -23,24 +16,26 @@ import android.widget.Toast;
 import com.example.nicolsrestrepo.safezone.ObjetosNegocio.Usuario;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class Notify_Emergency_Contact extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
+    private Context thisContext = this;
+
     private final static String USERS_PATH = "usuarios";
 
     private final int CONTACTS_PERMISSION = 1;
 
-    public ListView list;
-    private Button getChoice;
+    public ListView listView;
+    private Button button_notificar, button_agregarContacto;
 
     /*
     String[] listContent = {"Emergency Contact 1","Emergency Contact 2","Emergency Contact 3" ,
@@ -51,40 +46,50 @@ public class Notify_Emergency_Contact extends AppCompatActivity {
 
     Usuario usuarioActual = null;
 
-    String[] listContent;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notify__emergency__contact);
-        list = (ListView) findViewById(R.id.emergency_contacts_lists);
+        listView = (ListView) findViewById(R.id.emergency_contacts_lists);
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        getChoice = (Button) findViewById(R.id.getchoice);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_multiple_choice, listContent);
+        button_notificar = findViewById(R.id.button_notificar);
+        button_agregarContacto = findViewById(R.id.button_agregarContacto);
 
-        list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-        list.setAdapter(adapter);
-        getChoice.setOnClickListener(new Button.OnClickListener() {
+        button_agregarContacto.setOnClickListener(new View.OnClickListener() {
             @Override
-
-            public void onClick(View v) {
-                validateNotification();
+            public void onClick(View view) {
+                Intent intent = new Intent(view.getContext(),AddContact.class);
+                startActivity(intent);
             }
         });
+
+        cargarDatosUsuario();
     }
 
     private void cargarDatosUsuario() {
-        DocumentReference docRef = db.collection(USERS_PATH).document("BJ");
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+
+        DocumentReference docRef = db.collection(USERS_PATH).document(firebaseUser.getUid());
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 Usuario usuario = documentSnapshot.toObject(Usuario.class);
-
                 if(usuario != null){
                     usuarioActual = usuario;
+
+                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(thisContext, android.R.layout.simple_list_item_multiple_choice, usuarioActual.getListaContactos());
+                    listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+                    listView.setAdapter(adapter);
+                    button_notificar.setOnClickListener(new Button.OnClickListener() {
+                        @Override
+
+                        public void onClick(View v) {
+                            validateNotification();
+                        }
+                    });
                 }
             }
         });
@@ -92,18 +97,20 @@ public class Notify_Emergency_Contact extends AppCompatActivity {
 
     private void validateNotification() {
         ArrayList<String> selected = new ArrayList<String>();
-        int cntChoice = list.getCount();
+        int cntChoice = listView.getCount();
 
-        SparseBooleanArray sparseBooleanArray = list.getCheckedItemPositions();
+        SparseBooleanArray sparseBooleanArray = listView.getCheckedItemPositions();
 
         for (int i = 0; i < cntChoice; i++) {
 
             if (sparseBooleanArray.get(i)) {
-                selected.add(list.getItemAtPosition(i).toString());
+                selected.add(listView.getItemAtPosition(i).toString());
             }
         }
 
-        makeDialog(selected);
+        if(selected.size() > 0){
+            makeDialog(selected);
+        }
 
     }
 

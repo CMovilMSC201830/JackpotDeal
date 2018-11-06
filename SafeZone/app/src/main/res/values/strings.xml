@@ -38,5 +38,7 @@
     <string name="cargando">Cargando...</string>
     <string name="input_telefono">Número de teléfono</string>
     <string name="button_agregarContacto">Agregar Contacto</string>
+    <string name="hint_buscarUsuario">Escribe el correo de un usuario registrado</string>
+    <string name="completionHint_buscarUsuario">Selecciona un usuario</string>
 
 </resources>

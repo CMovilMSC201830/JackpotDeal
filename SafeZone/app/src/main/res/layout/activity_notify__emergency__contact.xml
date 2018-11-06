@@ -30,7 +30,7 @@
         android:layout_marginRight="8dp"
         android:layout_marginBottom="8dp"
         android:checkMark="?android:attr/listChoiceIndicatorMultiple"
-        app:layout_constraintBottom_toTopOf="@+id/getchoice"
+        app:layout_constraintBottom_toTopOf="@+id/button_notificar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_agregarContacto">
@@ -39,7 +39,7 @@
     </ListView>
 
     <Button
-        android:id="@+id/getchoice"
+        android:id="@+id/button_notificar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@color/yellow"

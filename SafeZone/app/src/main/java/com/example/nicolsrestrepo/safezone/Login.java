@@ -214,7 +214,7 @@ public class Login extends AppCompatActivity {
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                     } else {
                         Log.d(TAG, "No such document, creating new one");
-                        Usuario nuevoUsuario = new Usuario();
+                        Usuario nuevoUsuario = new Usuario(currentFirebaseUser.getEmail());
                         db.collection(USERS_PATH).document(currentFirebaseUser.getUid()).set(nuevoUsuario);
                     }
                 } else {
