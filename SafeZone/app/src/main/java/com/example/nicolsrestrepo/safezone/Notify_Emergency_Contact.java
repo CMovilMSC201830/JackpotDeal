@@ -67,6 +67,7 @@ public class Notify_Emergency_Contact extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(view.getContext(),AddContact.class);
                 startActivity(intent);
+                finish();
             }
         });
 

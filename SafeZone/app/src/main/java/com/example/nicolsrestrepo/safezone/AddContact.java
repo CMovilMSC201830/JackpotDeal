@@ -2,6 +2,7 @@ package com.example.nicolsrestrepo.safezone;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
@@ -132,6 +133,7 @@ public class AddContact extends AppCompatActivity {
                                                     //Snackbar.make(parentLayout, "Ya tenías este contacto", Snackbar.LENGTH_SHORT).show();
                                                     Toast.makeText(thisContext,"Ya tenías este contacto",Toast.LENGTH_SHORT).show();
                                                 }
+                                                startActivity(new Intent(AddContact.this,Notify_Emergency_Contact.class));
                                                 finish();
                                             }
                                         }
