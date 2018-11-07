@@ -95,6 +95,8 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private int first;
 
+    private boolean comesFromReport;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,6 +110,9 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         mStorageRef = FirebaseStorage.getInstance().getReference();
         getSupportActionBar().setTitle("Safe Zone");
         mAuth = FirebaseAuth.getInstance();
+
+        comesFromReport = getIntent().hasExtra("bundle");
+
         m = null;
         end=null;
         first = 0;
@@ -144,9 +149,11 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
                     // setting a dummy location
+                    /*
                     double danger_lat = 4.702465;
                     double danger_lng = -74.041979;
                     markDangerZone(danger_lat, danger_lng);
+                    */
 
                     first = 1;
                     begin = actual;
@@ -168,6 +175,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(view.getContext(), NotifyEventActivity.class);
+                intent.putExtra("actualLocation",begin);
                 startActivity(intent);
             }
         });
@@ -255,6 +263,38 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .loadRawResourceStyle(this, R.raw.mapstyle));
         if (Utils.requestPermission(this, Manifest.permission.ACCESS_FINE_LOCATION, "Se necesita acceder a la cámara", LOCATION_PERMISSON))
             locateMap();
+
+        if( comesFromReport ){
+            Bundle bundle = getIntent().getBundleExtra("bundle");
+
+            LatLng posicionReporte = bundle.getParcelable("ubicacion");
+            String tipoDeEvento = bundle.getString("eventType");
+
+            int colorReporte = Color.GRAY;
+
+            switch (tipoDeEvento){
+                case "Hurto a personas":
+                    colorReporte = Color.argb(50, 255, 255, 0);
+                    break;
+                case "Hurto a empresas":
+                    colorReporte = Color.argb(50, 255, 255, 0);
+                    break;
+                case "Homicidio":
+                    colorReporte = Color.argb(50, 255, 255, 255);;
+                    break;
+                case "Secuestro":
+                    colorReporte = Color.argb(50, 255, 100, 110);
+                    break;
+                case "Extorsión":
+                    colorReporte = Color.argb(50, 0, 0, 255);
+                    break;
+                case "Intento de homicidio":
+                    colorReporte = Color.argb(50, 255, 0, 0);
+                    break;
+            }
+
+            markDangerZone(posicionReporte.latitude,posicionReporte.longitude,colorReporte,tipoDeEvento);
+        }
     }
 
     @Override
@@ -440,14 +480,22 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
     }
 
-    public void markDangerZone(double danger_lat, double danger_lng){
+
+
+    public void markDangerZone(double danger_lat, double danger_lng, int color, String evento){
         LatLng bogota = new LatLng(danger_lat, danger_lng);
+
+        mMap.addMarker(new MarkerOptions().position(new LatLng(danger_lat,danger_lng))
+                .title(evento)
+                .icon(BitmapDescriptorFactory
+                        .defaultMarker(BitmapDescriptorFactory.HUE_ROSE)));
+
         CircleOptions circleOptions = new CircleOptions()
                 .center(bogota)
                 .radius(500) //metros
                 .strokeWidth(10)
-                .strokeColor(Color.BLUE)
-                .fillColor(Color.argb(128, 127, 0, 0))
+                .strokeColor(Color.argb(50, 127, 0, 0))
+                .fillColor(color)
                 .clickable(true);
         mMap.addCircle(circleOptions);
     }

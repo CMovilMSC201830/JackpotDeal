@@ -7,7 +7,7 @@
     tools:context=".ReportEventActivity">
 
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/editText_detallesEvento"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -17,8 +17,8 @@
         android:hint="Detalles"
         android:inputType="textMultiLine"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/editText2"
-        app:layout_constraintTop_toBottomOf="@+id/editText2" />
+        app:layout_constraintStart_toStartOf="@+id/editText_fechaEvento"
+        app:layout_constraintTop_toBottomOf="@+id/editText_fechaEvento" />
 
     <Button
         android:id="@+id/report_event"
@@ -32,10 +32,10 @@
         android:text="Reportar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText" />
+        app:layout_constraintTop_toBottomOf="@+id/editText_detallesEvento" />
 
     <EditText
-        android:id="@+id/editText2"
+        android:id="@+id/editText_fechaEvento"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -45,16 +45,16 @@
         android:hint="Fecha"
         android:inputType="date"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/editText4"
-        app:layout_constraintTop_toBottomOf="@+id/editText4" />
+        app:layout_constraintStart_toStartOf="@+id/editText_horaEvento"
+        app:layout_constraintTop_toBottomOf="@+id/editText_horaEvento" />
 
     <EditText
-        android:id="@+id/editText3"
+        android:id="@+id/editText_zonaEvento"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:ems="10"
@@ -62,10 +62,10 @@
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/textView_tituloEvento" />
 
     <EditText
-        android:id="@+id/editText4"
+        android:id="@+id/editText_horaEvento"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -75,6 +75,20 @@
         android:hint="Hora"
         android:inputType="time"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/editText3"
-        app:layout_constraintTop_toBottomOf="@+id/editText3" />
+        app:layout_constraintStart_toStartOf="@+id/editText_zonaEvento"
+        app:layout_constraintTop_toBottomOf="@+id/editText_zonaEvento" />
+
+    <TextView
+        android:id="@+id/textView_tituloEvento"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:text="Evento"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>

@@ -18,10 +18,6 @@ public class EventInformation {
     }
 
     public EventInformation() {
-        this.zone = new String();
-        this.time = new String();
-        this.date = new String();
-        this.details = new String();
     }
 
     public String getZone() {
@@ -36,7 +32,7 @@ public class EventInformation {
         return time;
     }
 
-    public void setTime(String zone) {
+    public void setTime(String time) {
         this.time = time;
     }
 
@@ -44,7 +40,7 @@ public class EventInformation {
         return date;
     }
 
-    public void setDate(String zone) {
+    public void setDate(String date) {
         this.date = date;
     }
 
@@ -52,7 +48,7 @@ public class EventInformation {
         return details;
     }
 
-    public void setDetails(String zone) {
+    public void setDetails(String details) {
         this.details = details;
     }
 

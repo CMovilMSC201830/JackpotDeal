@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "380156031129-brlikoqt4hf95q8bh79m0bv3908ltnbe.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.nicolsrestrepo.safezone",
+            "certificate_hash": "f3c982dbbb5405b0eccc2288b281c012dcadca42"
+          }
+        },
+        {
           "client_id": "380156031129-135ihnoibqo4h5ci24f6l6s8jgddbruk.apps.googleusercontent.com",
           "client_type": 3
         }
