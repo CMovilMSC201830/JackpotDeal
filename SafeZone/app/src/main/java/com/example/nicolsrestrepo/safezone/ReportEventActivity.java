@@ -19,6 +19,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -57,7 +58,7 @@ public class ReportEventActivity extends AppCompatActivity {
         }
 
 
-        String evento = getIntent().getStringExtra("eventType");
+        final String evento = getIntent().getStringExtra("eventType");
 
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
@@ -106,12 +107,15 @@ public class ReportEventActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String reportTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date());
+                GeoPoint position = new GeoPoint(posicion.latitude,posicion.longitude);
 
                 eventInfo = new EventInformation();
                 eventInfo.setZone(editText_zona.getText().toString());
                 eventInfo.setTime(editText_hora.getText().toString());
                 eventInfo.setDate(editText_hora.getText().toString());
                 eventInfo.setDetails(editText_detalles.getText().toString());
+                eventInfo.setPosition(position);
+                eventInfo.setType(evento);
 
                 FirebaseUser currentFirebaseUser = mAuth.getCurrentUser();
 

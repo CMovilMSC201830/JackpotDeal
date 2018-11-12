@@ -1,5 +1,7 @@
 package com.example.nicolsrestrepo.safezone.ObjetosNegocio;
 
+import com.google.firebase.firestore.GeoPoint;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -9,6 +11,8 @@ public class EventInformation {
     private String time;
     private String date;
     private String details;
+    private GeoPoint position;
+    private String type;
 
     public EventInformation(String zone, String time, String date, String details) {
         this.zone = zone;
@@ -18,6 +22,14 @@ public class EventInformation {
     }
 
     public EventInformation() {
+    }
+
+    public GeoPoint getPosition() {
+        return position;
+    }
+
+    public String getType() {
+        return type;
     }
 
     public String getZone() {
@@ -52,6 +64,13 @@ public class EventInformation {
         this.details = details;
     }
 
+    public void setPosition(GeoPoint position) {
+        this.position = position;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 
     public JSONObject ToJson() {
         JSONObject obj = new JSONObject();
