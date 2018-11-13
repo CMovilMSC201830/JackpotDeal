@@ -57,9 +57,6 @@ public class ReportEventActivity extends AppCompatActivity {
             posicion = bundle.getParcelable("ubicacion");
         }
 
-
-        final String evento = getIntent().getStringExtra("eventType");
-
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
