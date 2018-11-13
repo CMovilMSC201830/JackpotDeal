@@ -264,6 +264,24 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap = googleMap;
         mMap.setMapStyle(MapStyleOptions
                 .loadRawResourceStyle(this, R.raw.mapstyle));
+
+        locateInitialMap();
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                if (mMap != null) {
+                    mMap.clear();
+                    mMap.addMarker(new MarkerOptions().position(latLng)
+                            .title("Destino Personalizado")
+                            .icon(BitmapDescriptorFactory
+                                    .defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                    end = latLng;
+                    tripInfo.setDestino("Destino Personalizado");
+                    tripInfo.setDistancia(String.format("%.2f", calculateDistance() / 1000));
+                }
+               routeCalculate();
+            }
+        });
         if (Utils.requestPermission(this, Manifest.permission.ACCESS_FINE_LOCATION, "Se necesita acceder a la cámara", LOCATION_PERMISSON))
             locateMap();
 
@@ -300,6 +318,11 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
 
+    }
+
+    private void locateInitialMap() {
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(4.637442,-74.085507)));
+        mMap.moveCamera(CameraUpdateFactory.zoomTo(10));
     }
 
     @Override
