@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,6 +23,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.nicolsrestrepo.safezone.ObjetosNegocio.EventInformation;
 import com.example.nicolsrestrepo.safezone.ObjetosNegocio.TripInformation;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.CommonStatusCodes;
@@ -45,18 +47,22 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -66,6 +72,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private final static String USERS_PATH = "usuarios";
     private final static String TRIPS_PATH = "viajes";
+    private final static String EVENTS_PATH = "eventos";
 
     private GoogleMap mMap;
     private ImageButton imageButton_notifyContact;
@@ -86,6 +93,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private TripInformation tripInfo;
     private Date current;
+    private ArrayList<EventInformation> reportedEvents;
 
     //GEOCODER LIMITS
     public static final double lowerLeftLatitude = 1.396967;
@@ -110,6 +118,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         mStorageRef = FirebaseStorage.getInstance().getReference();
         getSupportActionBar().setTitle("Safe Zone");
         mAuth = FirebaseAuth.getInstance();
+        reportedEvents = new ArrayList<EventInformation>();
 
         comesFromReport = getIntent().hasExtra("bundle");
 
@@ -146,14 +155,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                             .icon(BitmapDescriptorFactory
                                     .fromResource(R.drawable.carmarker)));
 
-
-
-                    // setting a dummy location
-                    /*
-                    double danger_lat = 4.702465;
-                    double danger_lng = -74.041979;
-                    markDangerZone(danger_lat, danger_lng);
-                    */
 
                     first = 1;
                     begin = actual;
@@ -203,6 +204,8 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return false;
             }
         });
+
+        loadReportedEvents();
     }
 
 
@@ -261,6 +264,24 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap = googleMap;
         mMap.setMapStyle(MapStyleOptions
                 .loadRawResourceStyle(this, R.raw.mapstyle));
+
+        locateInitialMap();
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                if (mMap != null) {
+                    mMap.clear();
+                    mMap.addMarker(new MarkerOptions().position(latLng)
+                            .title("Destino Personalizado")
+                            .icon(BitmapDescriptorFactory
+                                    .defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                    end = latLng;
+                    tripInfo.setDestino("Destino Personalizado");
+                    tripInfo.setDistancia(String.format("%.2f", calculateDistance() / 1000));
+                }
+               routeCalculate();
+            }
+        });
         if (Utils.requestPermission(this, Manifest.permission.ACCESS_FINE_LOCATION, "Se necesita acceder a la cámara", LOCATION_PERMISSON))
             locateMap();
 
@@ -295,6 +316,13 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             markDangerZone(posicionReporte.latitude,posicionReporte.longitude,colorReporte,tipoDeEvento);
         }
+
+
+    }
+
+    private void locateInitialMap() {
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(4.637442,-74.085507)));
+        mMap.moveCamera(CameraUpdateFactory.zoomTo(10));
     }
 
     @Override
@@ -500,6 +528,54 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.addCircle(circleOptions);
     }
 
+    public void loadReportedEvents(){
+        db.collection(EVENTS_PATH)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            List<DocumentSnapshot> myListOfDocuments = task.getResult().getDocuments();
+                            for(DocumentSnapshot sd: myListOfDocuments){
+                                reportedEvents.add(sd.toObject(EventInformation.class));;
+                            }
 
+                            drawReportedEvents();
+                        }
+                    }
+                });
+    }
+
+    public void drawReportedEvents(){
+        for(EventInformation event: reportedEvents){
+            int colorReporte = Color.GRAY;
+
+            switch (event.getType()){
+                case "Hurto a personas":
+                    colorReporte = Color.argb(50, 255, 255, 0);
+                    break;
+                case "Hurto a empresas":
+                    colorReporte = Color.argb(50, 255, 255, 0);
+                    break;
+                case "Homicidio":
+                    colorReporte = Color.argb(50, 255, 255, 255);;
+                    break;
+                case "Secuestro":
+                    colorReporte = Color.argb(50, 255, 100, 110);
+                    break;
+                case "Extorsión":
+                    colorReporte = Color.argb(50, 0, 0, 255);
+                    break;
+                case "Intento de homicidio":
+                    colorReporte = Color.argb(50, 255, 0, 0);
+                    break;
+            }
+
+            markDangerZone(event.getPosition().getLatitude(),
+                    event.getPosition().getLongitude(),
+                    colorReporte,
+                    event.getDetails());
+        }
+    }
 }
 
