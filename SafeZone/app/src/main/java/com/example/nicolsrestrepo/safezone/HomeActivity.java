@@ -1,6 +1,7 @@
 package com.example.nicolsrestrepo.safezone;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -69,6 +70,8 @@ import java.util.List;
 public class HomeActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private final static int LOCATION_PERMISSON = 0;
+    private final static int REQUEST_CHECK_SETTINGS = 1;
+    private final static int LONGCLICK_ON_MAP = 2;
 
     private final static String USERS_PATH = "usuarios";
     private final static String TRIPS_PATH = "viajes";
@@ -85,7 +88,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private LocationCallback mLocationCallback;
     private FusedLocationProviderClient mFusedLocationClient;
     private LatLng begin, end;
-    private int REQUEST_CHECK_SETTINGS = 1;
     private EditText route;
     private Marker m;
     private FirebaseAuth mAuth;
@@ -178,7 +180,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(view.getContext(), NotifyEventActivity.class);
-                intent.putExtra("actualLocation",begin);
+                intent.putExtra("location",begin);
                 startActivity(intent);
             }
         });
@@ -271,18 +273,9 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-                if (mMap != null) {
-                    mMap.clear();
-                    drawReportedEvents();
-                    mMap.addMarker(new MarkerOptions().position(latLng)
-                            .title("Destino Personalizado")
-                            .icon(BitmapDescriptorFactory
-                                    .defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-                    end = latLng;
-                    tripInfo.setDestino("Destino Personalizado");
-                    tripInfo.setDistancia(String.format("%.2f", calculateDistance() / 1000));
-                }
-               routeCalculate();
+                Intent intent = new Intent(HomeActivity.this, LongClickActivity.class);
+                intent.putExtra("location", latLng);
+                startActivityForResult(intent, LONGCLICK_ON_MAP);
             }
         });
         if (Utils.requestPermission(this, Manifest.permission.ACCESS_FINE_LOCATION, "Se necesita acceder a la cámara", LOCATION_PERMISSON))
@@ -580,6 +573,40 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                     event.getPosition().getLongitude(),
                     colorReporte,
                     event.getDetails());
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == LONGCLICK_ON_MAP){
+            if(resultCode == Activity.RESULT_OK){
+                Bundle resultBundle = data.getBundleExtra("result");
+                LatLng latLng = resultBundle.getParcelable("location");
+                String accion = resultBundle.getString("action");
+
+                if( accion.equals( getString(R.string.action_crearRuta) ) ){
+                    if (mMap != null) {
+                        mMap.clear();
+                        drawReportedEvents();
+                        mMap.addMarker(new MarkerOptions().position(latLng)
+                                .title("Destino Personalizado")
+                                .icon(BitmapDescriptorFactory
+                                        .defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                        end = latLng;
+                        tripInfo.setDestino("Destino Personalizado");
+                        tripInfo.setDistancia(String.format("%.2f", calculateDistance() / 1000));
+                    }
+                    routeCalculate();
+                }
+
+                if( accion.equals( getString(R.string.action_reportarEvento) ) ){
+                    Intent intent = new Intent(HomeActivity.this, NotifyEventActivity.class);
+                    intent.putExtra("location",latLng);
+                    startActivity(intent);
+                }
+
+
+            }
         }
     }
 }

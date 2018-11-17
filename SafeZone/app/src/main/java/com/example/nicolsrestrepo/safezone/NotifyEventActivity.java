@@ -40,7 +40,7 @@ public class NotifyEventActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notify_event);
 
-        ubicacion = getIntent().getParcelableExtra("actualLocation");
+        ubicacion = getIntent().getParcelableExtra("location");
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);

@@ -54,7 +54,9 @@
         <activity android:name=".MyTrips" />
         <activity android:name=".UpdateProfile" />
         <activity android:name=".ReportEventActivity" />
-        <activity android:name=".AddContact"></activity>
+        <activity android:name=".AddContact" />
+        <activity android:name=".LongClickActivity"
+            android:theme="@style/AppTheme.PopUpTheme_2"/>
     </application>
 
 </manifest>
