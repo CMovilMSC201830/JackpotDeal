@@ -1,8 +1,10 @@
 package com.example.nicolsrestrepo.safezone;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.nicolsrestrepo.safezone.ObjetosNegocio.EventInformation;
 import com.google.android.gms.maps.GoogleMap;
@@ -30,22 +32,20 @@ public class RouteCalculator {
     private double beginLongitud;
     private double endLatitude;
     private double endLongitud;
+
+    private static Context callingContext;
     private static GoogleMap mMap;
+    private static double eventsRadiusSize_meters = 0;
+    private static List<EventInformation> reportedEvents = new ArrayList<>();
 
-    private double eventsRadiusSize;
-    private List<EventInformation> reportedEvents;
-
-    public RouteCalculator(){
-        reportedEvents = new ArrayList<>();
-    }
-
-    public RouteCalculator(double beginLatitude, double beginLongitud, double endLatitude, double endLongitud, GoogleMap mMap, double eventsRadiusSize, List<EventInformation> reportedEvents) {
+    public RouteCalculator(double beginLatitude, double beginLongitud, double endLatitude, double endLongitud, Context callingContext, GoogleMap mMap, double eventsRadiusSize_meters, List<EventInformation> reportedEvents) {
         this.beginLatitude = beginLatitude;
         this.beginLongitud = beginLongitud;
         this.endLatitude = endLatitude;
         this.endLongitud = endLongitud;
+        this.callingContext = callingContext;
         this.mMap = mMap;
-        this.eventsRadiusSize = eventsRadiusSize;
+        this.eventsRadiusSize_meters = eventsRadiusSize_meters;
         this.reportedEvents = reportedEvents;
     }
 
@@ -65,7 +65,8 @@ public class RouteCalculator {
         //Mode for find direction
         String mode = "mode=driving";
         //Build the full param
-        String param = str_org +"&" + str_dest + "&" +sensor+"&" +mode+ "&" + alternatives + "&" +api_key;
+        String param = str_org +"&" + str_dest + "&" +sensor+"&" +mode+ "&" +api_key;
+        param += "&" + alternatives;
         //Output format
         String output = "json";
 
@@ -157,9 +158,10 @@ public class RouteCalculator {
 
                 PolylineOptions polylineOptions = null;
 
+                List<HashMap<String, String>> lastPath = lists.get( lists.size() - 1 );
                 for (List<HashMap<String, String>> path : lists) {
                     points = new ArrayList();
-                    polylineOptions = new PolylineOptions();
+
 
                     for (HashMap<String, String> point : path) {
                         double lat = Double.parseDouble(point.get("lat"));
@@ -168,32 +170,83 @@ public class RouteCalculator {
                         LatLng latLng_point = new LatLng(lat,lon);
 
                         points.add(latLng_point);
+
                     }
 
-                    polylineOptions.addAll(points);
-                    polylineOptions.width(15);
-                    polylineOptions.color(Color.CYAN);
-                    polylineOptions.geodesic(true);
+                    if( pathIsSecure(points) ){
+                        polylineOptions = new PolylineOptions();
+                        polylineOptions.addAll(points);
+                        polylineOptions.width(15);
+                        polylineOptions.color(Color.rgb(143, 171, 216));
+                        polylineOptions.geodesic(true);
+
+                        break;
+                    }
+
+                    if( !pathIsSecure(points) && path.equals(lastPath) ){
+                        polylineOptions = new PolylineOptions();
+                        polylineOptions.addAll(points);
+                        polylineOptions.width(15);
+                        polylineOptions.color(Color.rgb(143, 171, 216));
+                        polylineOptions.geodesic(true);
+
+                        Toast.makeText(callingContext,"Conduce con cuidado, no encontramos una ruta que evada los eventos", Toast.LENGTH_SHORT).show();
+                    }
+
                 }
 
                 if (polylineOptions!=null) {
                     mMap.addPolyline(polylineOptions);
                 }
 
+
+
             }
         }
     }
 
-    private static boolean isInside (double point_lat, double point_lon, double circleCenter_lat, double circleCenter_lon, double radiusSize){
+    private static boolean pathIsSecure(ArrayList<LatLng> points){
+
+        for(LatLng point: points){
+
+            EventInformation surroundingEvent = getSurroundingEvent(point.latitude, point.longitude);
+
+            if(surroundingEvent != null){
+                return  false;
+            }
+        }
+
+        return true;
+    }
+
+    private static EventInformation getSurroundingEvent(double point_lat, double point_lon){
+        for (EventInformation evento: reportedEvents) {
+            double centro_lat = evento.getPosition().getLatitude();
+            double centro_lon = evento.getPosition().getLongitude();
+            if(isInside(point_lat, point_lon, centro_lat, centro_lon, eventsRadiusSize_meters)){
+                Log.d(TAG,point_lat+","+point_lon+" está dentro de "+ evento.getPosition().toString());
+                return evento;
+            }
+        }
+        return null;
+    }
+
+    private static boolean isInside (double point_lat, double point_lon, double circleCenter_lat, double circleCenter_lon, double radiusSize_meters){
         // Compare radius of circle with
         // distance of its center from
         // given point
         double d_2 = Math.pow((point_lat - circleCenter_lat),2) + Math.pow((point_lon - circleCenter_lon),2) ;
+        double radiusSize_coordinates = radiusSize_meters / 111111;
+        double r_2 = Math.pow(radiusSize_coordinates,2);
 
-        if (  d_2 <= Math.pow(radiusSize,2) )
+        if (  d_2 <= r_2 ) {
+            Log.d(TAG, d_2 + "<=" + r_2);
             return true;
-        else
+        }
+        else{
             return false;
+        }
+
     }
 
 }

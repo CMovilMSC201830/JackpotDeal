@@ -273,6 +273,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onMapLongClick(LatLng latLng) {
                 if (mMap != null) {
                     mMap.clear();
+                    drawReportedEvents();
                     mMap.addMarker(new MarkerOptions().position(latLng)
                             .title("Destino Personalizado")
                             .icon(BitmapDescriptorFactory
@@ -429,7 +430,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void routeCalculate() {
-        RouteCalculator rc = new RouteCalculator(begin.latitude, begin.longitude, end.latitude, end.longitude,mMap, eventRadiusSize, reportedEvents);
+        RouteCalculator rc = new RouteCalculator(begin.latitude, begin.longitude, end.latitude, end.longitude, this, mMap, eventRadiusSize, reportedEvents);
         String url = rc.requestUrl();
         RouteCalculator.TaskRequestDirections taskRequestDirections = new RouteCalculator.TaskRequestDirections();
         taskRequestDirections.execute(url);
