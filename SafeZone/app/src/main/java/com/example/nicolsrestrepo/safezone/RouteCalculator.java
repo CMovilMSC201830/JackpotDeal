@@ -4,9 +4,9 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.example.nicolsrestrepo.safezone.ObjetosNegocio.EventInformation;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONException;
@@ -24,38 +24,55 @@ import java.util.List;
 
 public class RouteCalculator {
 
+    private final static String TAG = "RouteCreation";
 
-    private double beginlatitude;
-    private double beginlongitud;
-    private double endlatitude;
-    private double endlongitud;
+    private double beginLatitude;
+    private double beginLongitud;
+    private double endLatitude;
+    private double endLongitud;
     private static GoogleMap mMap;
 
-    public RouteCalculator(double beginlatitude, double beginlongitud, double endlatitude, double endlongitud,GoogleMap mMap) {
-        this.beginlatitude = beginlatitude;
-        this.beginlongitud = beginlongitud;
-        this.endlatitude = endlatitude;
-        this.endlongitud = endlongitud;
+    private double eventsRadiusSize;
+    private List<EventInformation> reportedEvents;
+
+    public RouteCalculator(){
+        reportedEvents = new ArrayList<>();
+    }
+
+    public RouteCalculator(double beginLatitude, double beginLongitud, double endLatitude, double endLongitud, GoogleMap mMap, double eventsRadiusSize, List<EventInformation> reportedEvents) {
+        this.beginLatitude = beginLatitude;
+        this.beginLongitud = beginLongitud;
+        this.endLatitude = endLatitude;
+        this.endLongitud = endLongitud;
         this.mMap = mMap;
+        this.eventsRadiusSize = eventsRadiusSize;
+        this.reportedEvents = reportedEvents;
     }
 
     public String requestUrl(){
-        Log.i("mapRef","2 "+mMap);
+        Log.i(TAG,"2 "+mMap);
+
+        String api_key = "key=" + "AIzaSyAkvxAqu8N45ui8vtE_wx908odoPQomVUU";
+
+        String alternatives = "alternatives=true";
+
         //Value of origin
-        String str_org = "origin=" + beginlatitude +","+beginlongitud;
+        String str_org = "origin=" + beginLatitude +","+ beginLongitud;
         //Value of destination
-        String str_dest = "destination=" + endlatitude+","+endlongitud;
+        String str_dest = "destination=" + endLatitude +","+ endLongitud;
         //Set value enable the sensor
         String sensor = "sensor=false";
         //Mode for find direction
         String mode = "mode=driving";
         //Build the full param
-        String param = str_org +"&" + str_dest + "&" +sensor+"&" +mode;
+        String param = str_org +"&" + str_dest + "&" +sensor+"&" +mode+ "&" + alternatives + "&" +api_key;
         //Output format
         String output = "json";
+
+
         //Create url to request
-        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + param + "&key=" + "AIzaSyAkvxAqu8N45ui8vtE_wx908odoPQomVUU";
-        Log.i("mapsAct",url);
+        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + param;
+        Log.i(TAG,url);
         return url;
 
     }
@@ -128,7 +145,7 @@ public class RouteCalculator {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Log.i("mapsAct",""+routes);
+                Log.i(TAG,""+routes);
                 return routes;
             }
 
@@ -148,22 +165,35 @@ public class RouteCalculator {
                         double lat = Double.parseDouble(point.get("lat"));
                         double lon = Double.parseDouble(point.get("lon"));
 
-                        points.add(new LatLng(lat,lon));
+                        LatLng latLng_point = new LatLng(lat,lon);
+
+                        points.add(latLng_point);
                     }
 
                     polylineOptions.addAll(points);
                     polylineOptions.width(15);
-                    polylineOptions.color(Color.BLUE);
+                    polylineOptions.color(Color.CYAN);
                     polylineOptions.geodesic(true);
                 }
 
                 if (polylineOptions!=null) {
                     mMap.addPolyline(polylineOptions);
-
                 }
 
             }
         }
+    }
+
+    private static boolean isInside (double point_lat, double point_lon, double circleCenter_lat, double circleCenter_lon, double radiusSize){
+        // Compare radius of circle with
+        // distance of its center from
+        // given point
+        double d_2 = Math.pow((point_lat - circleCenter_lat),2) + Math.pow((point_lon - circleCenter_lon),2) ;
+
+        if (  d_2 <= Math.pow(radiusSize,2) )
+            return true;
+        else
+            return false;
     }
 
 }

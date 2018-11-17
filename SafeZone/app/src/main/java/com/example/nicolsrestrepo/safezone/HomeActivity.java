@@ -74,6 +74,8 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private final static String TRIPS_PATH = "viajes";
     private final static String EVENTS_PATH = "eventos";
 
+    private final static double eventRadiusSize = 100; //metros
+
     private GoogleMap mMap;
     private ImageButton imageButton_notifyContact;
     private ImageButton imageButton_notifyEvent;
@@ -93,7 +95,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private TripInformation tripInfo;
     private Date current;
-    private ArrayList<EventInformation> reportedEvents;
+    private List<EventInformation> reportedEvents;
 
     //GEOCODER LIMITS
     public static final double lowerLeftLatitude = 1.396967;
@@ -427,7 +429,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void routeCalculate() {
-        RouteCalculator rc = new RouteCalculator(begin.latitude, begin.longitude,end.latitude,end.longitude,mMap);
+        RouteCalculator rc = new RouteCalculator(begin.latitude, begin.longitude, end.latitude, end.longitude,mMap, eventRadiusSize, reportedEvents);
         String url = rc.requestUrl();
         RouteCalculator.TaskRequestDirections taskRequestDirections = new RouteCalculator.TaskRequestDirections();
         taskRequestDirections.execute(url);
@@ -511,7 +513,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     public void markDangerZone(double danger_lat, double danger_lng, int color, String evento){
-        LatLng bogota = new LatLng(danger_lat, danger_lng);
+        LatLng dangerZone = new LatLng(danger_lat, danger_lng);
 
         mMap.addMarker(new MarkerOptions().position(new LatLng(danger_lat,danger_lng))
                 .title(evento)
@@ -519,8 +521,8 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                         .defaultMarker(BitmapDescriptorFactory.HUE_ROSE)));
 
         CircleOptions circleOptions = new CircleOptions()
-                .center(bogota)
-                .radius(500) //metros
+                .center(dangerZone)
+                .radius(eventRadiusSize) //metros
                 .strokeWidth(10)
                 .strokeColor(Color.argb(50, 127, 0, 0))
                 .fillColor(color)
@@ -548,6 +550,8 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void drawReportedEvents(){
         for(EventInformation event: reportedEvents){
+
+
             int colorReporte = Color.GRAY;
 
             switch (event.getType()){
