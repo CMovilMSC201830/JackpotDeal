@@ -15,15 +15,19 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.nicolsrestrepo.safezone.ObjetosNegocio.Usuario;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Notify_Emergency_Contact extends AppCompatActivity {
 
@@ -33,7 +37,7 @@ public class Notify_Emergency_Contact extends AppCompatActivity {
     private Context thisContext = this;
 
     private final static String USERS_PATH = "usuarios";
-
+    private final static String NOTIFICATIONS_PATH = "notificaciones";
     private final int CONTACTS_PERMISSION = 1;
 
     public ListView listView;
@@ -133,14 +137,16 @@ public class Notify_Emergency_Contact extends AppCompatActivity {
 
     }
 
-    private void makeDialog(ArrayList<String> selected) {
+    private void makeDialog(final ArrayList<String> selected) {
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case DialogInterface.BUTTON_POSITIVE:
-                        Toast.makeText(getBaseContext(), "Notificaciónes enviadas", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(Notify_Emergency_Contact.this, HomeActivity.class));
+                        notifiyContact(selected);
+                        Intent intent = new Intent(Notify_Emergency_Contact.this, HomeActivity.class);
+                        intent.putExtra("notificado",true);
+                        startActivity(intent);
                         break;
 
                     case DialogInterface.BUTTON_NEGATIVE:
@@ -153,5 +159,15 @@ public class Notify_Emergency_Contact extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(Notify_Emergency_Contact.this);
         builder.setMessage("Desea enviar notificación a " + selected.size() + " contactos?").setPositiveButton("Si", dialogClickListener)
                 .setNegativeButton("No", dialogClickListener).show();
+    }
+
+    private void notifiyContact(ArrayList<String> selected) {
+
+        for(String correo: selected){
+            Map<String, Boolean> hm = new HashMap<>();
+            hm.put(mAuth.getCurrentUser().getUid(),null);
+            db.collection(NOTIFICATIONS_PATH).document(correo).set(hm,SetOptions.merge());
+        }
+        Toast.makeText(getBaseContext(), "Notificaciónes enviadas", Toast.LENGTH_SHORT).show();
     }
 }

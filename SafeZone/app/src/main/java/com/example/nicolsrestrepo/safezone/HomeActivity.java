@@ -2,7 +2,10 @@ package com.example.nicolsrestrepo.safezone;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -10,9 +13,11 @@ import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.service.notification.NotificationListenerService;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -26,6 +31,7 @@ import android.widget.Toast;
 
 import com.example.nicolsrestrepo.safezone.ObjetosNegocio.EventInformation;
 import com.example.nicolsrestrepo.safezone.ObjetosNegocio.TripInformation;
+import com.example.nicolsrestrepo.safezone.ObjetosNegocio.Usuario;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -56,7 +62,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -64,8 +74,17 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.EventListener;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
+import javax.annotation.Nullable;
 
 public class HomeActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -99,6 +118,10 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Date current;
     private List<EventInformation> reportedEvents;
 
+    private ArrayList <String> alreadyCreatedListeners;
+    public static ArrayList<String> interest = new ArrayList<>();
+
+
     //GEOCODER LIMITS
     public static final double lowerLeftLatitude = 1.396967;
     public static final double lowerLeftLongitude = -78.903968;
@@ -109,6 +132,10 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private boolean comesFromReport;
 
+    private HashMap<String,Marker> friendsMarkers;
+    private HashMap<String,String> IDS;
+    private HashMap<String,ListenerRegistration> listeners;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -118,12 +145,21 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        listeners = new HashMap<String,ListenerRegistration>();
+        friendsMarkers = new HashMap<String,Marker>();
+        IDS = new HashMap<String,String>();
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                mMessageReceiver, new IntentFilter("newFriendNot"));
+
+        startService(new Intent(this, NotificationListener.class));
+
         db = FirebaseFirestore.getInstance();
         mStorageRef = FirebaseStorage.getInstance().getReference();
         getSupportActionBar().setTitle("Safe Zone");
         mAuth = FirebaseAuth.getInstance();
         reportedEvents = new ArrayList<EventInformation>();
 
+        alreadyCreatedListeners = new ArrayList<String>();
         comesFromReport = getIntent().hasExtra("bundle");
 
         m = null;
@@ -138,13 +174,15 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         imageButton_notifyEvent = findViewById(R.id.button_notifyEvent);
         imageButton_emergencyButton = findViewById(R.id.button_emergencyButton);
         mLocationCallback = new LocationCallback() {
-
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 Location location = locationResult.getLastLocation();
                 if (location != null) {
-
                     LatLng actual = new LatLng(location.getLatitude(), location.getLongitude());
+                    Map<Object, Object> hm = new HashMap<>();
+                    hm.put("locations",actual);
+                    hm.put(FirebaseAuth.getInstance().getCurrentUser().getUid(),true);
+                    db.collection("ubicaciones").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).set(hm);
                     if (first == 0) {
 
                         m = mMap.addMarker(new MarkerOptions().position(actual)
@@ -212,8 +250,56 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         loadReportedEvents();
     }
 
+    private void viewFriendLocation(final String field) {
+        Log.d("test2", field);
+        final ListenerRegistration LR = db.collection("ubicaciones")
+                .whereEqualTo(field,true)
+                .addSnapshotListener(new com.google.firebase.firestore.EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException e) {
 
+                        if (e != null) {
+                          //  Log.w(TAG, "Listen failed.", e);
+                            return;
+                        }
+                        if (snapshots != null) {
+                            for(DocumentSnapshot document:snapshots.getDocuments()) {
+                                HashMap<Object, Object> location = (HashMap<Object, Object>) document.get("locations");
+                                Log.d("test4","hey");
+                                Log.d("test4",field);
+                                getUserName(field,location);
+                            }
+                        } else {
+                          //  Log.d(TAG, source + " data: null");
+                        }
+                    }
+                });
+        listeners.put(field,LR);
+    }
 
+    public void drawFriendMarker(Double latitude, Double longitude, String key, String name) {
+        LatLng friendPos = new LatLng(latitude,longitude);
+        if(friendsMarkers.get(key) == null){
+            IDS.put(name,key);
+            friendsMarkers.put(key,mMap.addMarker(new MarkerOptions().position(friendPos)
+                    .title("Dejar de rastrear a "+name)
+                    .icon(BitmapDescriptorFactory
+                            .fromResource(R.drawable.friend))));
+
+        }else{
+            Marker m = friendsMarkers.get(key);
+            m.remove();
+            friendsMarkers.put(key,mMap.addMarker(new MarkerOptions().position(friendPos)
+                    .title("Dejar de rastrear a "+name)
+                    .icon(BitmapDescriptorFactory
+                            .fromResource(R.drawable.friend))));
+        }
+
+        Log.d("test2","MARKER ADDED");
+        Log.d("test2",""+latitude);
+        Log.d("test2",""+longitude);
+
+    }
 //CALLBACKS
 
 
@@ -270,6 +356,17 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .loadRawResourceStyle(this, R.raw.mapstyle));
 
         locateInitialMap();
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                if(marker.getTitle().substring(0,19).equals("Dejar de rastrear a"))
+                    removeMarkerAndSubs(marker.getTitle().substring(20));
+                Log.i("test4",marker.getTitle().substring(20));
+
+            }
+        });
+
+
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
@@ -316,6 +413,21 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+    private void removeMarkerAndSubs(String id) {
+        Log.i("test4",id);
+        Log.i("test4",IDS.get(id));
+
+        Marker m = friendsMarkers.get(IDS.get(id));
+        m.remove();
+        friendsMarkers.remove(IDS.get(id));
+        alreadyCreatedListeners.remove(IDS.get(id));
+        interest.remove(IDS.get(id));
+        ListenerRegistration er = listeners.get(IDS.get(id));
+        er.remove();
+        listeners.remove(IDS.get(id));
+
+    }
+
     private void locateInitialMap() {
         mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(4.637442,-74.085507)));
         mMap.moveCamera(CameraUpdateFactory.zoomTo(10));
@@ -331,6 +443,31 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onPause() {
         super.onPause();
         stopLocationUpdates();
+    }
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            String message = intent.getStringExtra("key");
+            if(message.equals("change")){
+                createListeners();
+            }
+            // Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    private void createListeners() {
+        Set<String> aSet = new HashSet<String>(interest);
+        Set<String> bSet = new HashSet<>(alreadyCreatedListeners);
+        Set<String> aNotB = new HashSet<>(aSet);
+        aNotB.removeAll(bSet);
+
+        ArrayList<String> toBeCreated = new ArrayList<String>(aNotB);
+        Log.d("test2", ""+toBeCreated.size());
+        for (String s: toBeCreated) {
+            viewFriendLocation(s);
+            alreadyCreatedListeners.add(s);
+        }
     }
 
     //METHODS
@@ -427,6 +564,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         String url = rc.requestUrl();
         RouteCalculator.TaskRequestDirections taskRequestDirections = new RouteCalculator.TaskRequestDirections();
         taskRequestDirections.execute(url);
+        drawReportedEvents();
     }
     private void checkIfEnd() {
         float mts_to_end = 10;
@@ -608,6 +746,26 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             }
         }
+    }
+    private void getUserName(final String key,final HashMap location) {
+        db.collection("usuarios").document(key).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Usuario usuario = document.toObject(Usuario.class);
+                        drawFriendMarker((Double)location.get("latitude"),(Double)location.get("longitude"),key,usuario.getCorreo());
+                    } else {
+                        Log.d("listenerlog", "No such document");
+                    }
+                } else {
+                    Log.d("listenerlog", "get failed with ", task.getException());
+                }
+            }
+        });
+
+
     }
 }
 
