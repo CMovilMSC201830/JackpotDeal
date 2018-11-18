@@ -425,6 +425,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         ListenerRegistration er = listeners.get(IDS.get(id));
         er.remove();
         listeners.remove(IDS.get(id));
+        Toast.makeText(getBaseContext(),"Ya no rastreas a "+id,Toast.LENGTH_SHORT).show();
 
     }
 
