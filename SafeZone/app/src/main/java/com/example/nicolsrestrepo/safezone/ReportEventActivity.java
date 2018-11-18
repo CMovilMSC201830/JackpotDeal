@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -74,7 +75,7 @@ public class ReportEventActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                new DatePickerDialog(ReportEventActivity.this, date, myCalendar
+                new DatePickerDialog(ReportEventActivity.this, R.style.TimePickerTheme ,reportedDateListener, myCalendar
                         .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
                         myCalendar.get(Calendar.DAY_OF_MONTH)).show();
             }
@@ -89,7 +90,7 @@ public class ReportEventActivity extends AppCompatActivity {
                 int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
                 int minute = mcurrentTime.get(Calendar.MINUTE);
                 TimePickerDialog mTimePicker;
-                mTimePicker = new TimePickerDialog(ReportEventActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                mTimePicker = new TimePickerDialog(ReportEventActivity.this, R.style.TimePickerTheme, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
                         editText_hora.setText( selectedHour + ":" + selectedMinute);
@@ -109,19 +110,23 @@ public class ReportEventActivity extends AppCompatActivity {
                 eventInfo = new EventInformation();
                 eventInfo.setZone(editText_zona.getText().toString());
                 eventInfo.setTime(editText_hora.getText().toString());
-                eventInfo.setDate(editText_hora.getText().toString());
+                eventInfo.setDate(editText_fecha.getText().toString());
                 eventInfo.setDetails(editText_detalles.getText().toString());
                 eventInfo.setPosition(position);
                 eventInfo.setType(evento);
 
-                FirebaseUser currentFirebaseUser = mAuth.getCurrentUser();
+                //FirebaseUser currentFirebaseUser = mAuth.getCurrentUser();
 
-                db.collection(EVENTS_PATH).document(reportTime).set(eventInfo);
+                if (eventFormIsValid()){
+                    db.collection(EVENTS_PATH).document(reportTime).set(eventInfo);
 
-                Intent intent = new Intent(ReportEventActivity.this,HomeActivity.class);
-                intent.putExtra("bundle",bundle);
-                startActivity(intent);
-                finish();
+                    Intent intent = new Intent(ReportEventActivity.this,HomeActivity.class);
+                    intent.putExtra("bundle",bundle);
+                    startActivity(intent);
+                    finish();
+                }
+
+
             }
 
 
@@ -142,7 +147,7 @@ public class ReportEventActivity extends AppCompatActivity {
         }
     }
 
-    DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
+    DatePickerDialog.OnDateSetListener reportedDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
             // TODO Auto-generated method stub
@@ -160,4 +165,24 @@ public class ReportEventActivity extends AppCompatActivity {
 
         editText_fecha.setText(sdf.format(myCalendar.getTime()));
     }
+
+    private boolean validateTextField(EditText input) {
+        boolean valid = true;
+        String text = input.getText().toString();
+        if (TextUtils.isEmpty(text)) {
+            input.setError("Requerido");
+            valid = false;
+        } else {
+            input.setError(null);
+        }
+        return valid;
+    }
+
+    private boolean eventFormIsValid() {
+        return validateTextField(editText_zona) &
+                validateTextField(editText_hora) &
+                validateTextField(editText_fecha) &
+                validateTextField(editText_detalles);
+    }
+
 }
