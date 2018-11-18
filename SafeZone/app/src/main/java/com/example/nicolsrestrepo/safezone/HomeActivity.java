@@ -15,6 +15,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.service.notification.NotificationListenerService;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
@@ -60,11 +61,15 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
@@ -74,9 +79,7 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.EventListener;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -84,7 +87,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.annotation.Nullable;
 
 public class HomeActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -113,6 +115,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Bitmap trip;
     private StorageReference mStorageRef;
     private FirebaseFirestore db;
+    private ListenerRegistration queryListener;
 
     private TripInformation tripInfo;
     private Date current;
@@ -246,8 +249,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return false;
             }
         });
-
-        loadReportedEvents();
+        
     }
 
     private void viewFriendLocation(final String field) {
@@ -438,6 +440,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onResume() {
         super.onResume();
         locateMap();
+        loadRealTimeEvents();
     }
 
     @Override
@@ -520,6 +523,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void stopLocationUpdates() {
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+        queryListener.remove();
     }
 
     private void geoCoderFind() {
@@ -679,6 +683,26 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                         }
                     }
                 });
+    }
+
+    public void loadRealTimeEvents(){
+        Query query =  db.collection(EVENTS_PATH);
+        queryListener = query.addSnapshotListener(new com.google.firebase.firestore.EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot snapshots,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Log.w("TAG ERROR", "listen:error", e);
+                            return;
+                        }
+
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            reportedEvents.add(dc.getDocument().toObject(EventInformation.class));;
+                        }
+                        drawReportedEvents();
+                    }
+                });
+
     }
 
     public void drawReportedEvents(){
