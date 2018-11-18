@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -114,14 +115,18 @@ public class ReportEventActivity extends AppCompatActivity {
                 eventInfo.setPosition(position);
                 eventInfo.setType(evento);
 
-                FirebaseUser currentFirebaseUser = mAuth.getCurrentUser();
+                //FirebaseUser currentFirebaseUser = mAuth.getCurrentUser();
 
-                db.collection(EVENTS_PATH).document(reportTime).set(eventInfo);
+                if (eventFormIsValid()){
+                    db.collection(EVENTS_PATH).document(reportTime).set(eventInfo);
 
-                Intent intent = new Intent(ReportEventActivity.this,HomeActivity.class);
-                intent.putExtra("bundle",bundle);
-                startActivity(intent);
-                finish();
+                    Intent intent = new Intent(ReportEventActivity.this,HomeActivity.class);
+                    intent.putExtra("bundle",bundle);
+                    startActivity(intent);
+                    finish();
+                }
+
+
             }
 
 
@@ -160,4 +165,24 @@ public class ReportEventActivity extends AppCompatActivity {
 
         editText_fecha.setText(sdf.format(myCalendar.getTime()));
     }
+
+    private boolean validateTextField(EditText input) {
+        boolean valid = true;
+        String text = input.getText().toString();
+        if (TextUtils.isEmpty(text)) {
+            input.setError("Requerido");
+            valid = false;
+        } else {
+            input.setError(null);
+        }
+        return valid;
+    }
+
+    private boolean eventFormIsValid() {
+        return validateTextField(editText_zona) &
+                validateTextField(editText_hora) &
+                validateTextField(editText_fecha) &
+                validateTextField(editText_detalles);
+    }
+
 }
