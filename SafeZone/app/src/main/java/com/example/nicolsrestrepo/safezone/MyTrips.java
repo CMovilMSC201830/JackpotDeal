@@ -1,6 +1,7 @@
 package com.example.nicolsrestrepo.safezone;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -33,6 +35,7 @@ import org.json.JSONObject;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.Serializable;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +61,7 @@ public class MyTrips extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_trips);
 
+
         ids=new ArrayList<String>();
         trips = new ArrayList<TripInformation>();
         db = FirebaseFirestore.getInstance();
@@ -67,6 +71,7 @@ public class MyTrips extends AppCompatActivity {
         localCopy = findViewById(R.id.savaLocalBtn);
         localCopy.setVisibility(View.INVISIBLE);
 
+        Toast.makeText(getBaseContext(),"Haga Click en la imagen para ver mas detalles",Toast.LENGTH_SHORT).show();
         localCopy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -105,32 +110,28 @@ public class MyTrips extends AppCompatActivity {
     private void printData() {
 
         int index =0;
-        for(TripInformation tp: trips){
-            ProgressBar progressBar = new ProgressBar(this,null,android.R.attr.progressBarStyleLarge);
-            progressBar.setIndeterminate(true);
-            progressBar.setVisibility(View.VISIBLE);
-            ImageView iv = new ImageView(this);
+        for(final TripInformation tp: trips){
+            ImageButton iv = new ImageButton(this);
             iv.setBackgroundResource(R.drawable.loading);
-            TextView des = new TextView(this);
-            des.setPadding(15,15,15,15);
-            TextView dis = new TextView(this);
-            dis.setPadding(15,15,15,15);
-            TextView ti = new TextView(this);
-            ti.setPadding(15,15,15,15);
             setPicture(iv,index);
-
-            des.setText("Destino: "+tp.getDestino());
-            dis.setText("Distancia: "+tp.getDistancia()+" km");
-            ti.setText(tp.getTime()+ " Minutos");
+            iv.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    details(tp);
+                }
+            });
             linear.addView(iv);
-            linear.addView(des);
-            linear.addView(dis);
-            linear.addView(ti);
             index++;
         }
 
         localCopy.setVisibility(View.VISIBLE);
 
+    }
+
+    private void details(TripInformation tp) {
+        Intent i = new Intent(MyTrips.this,MyTripDetail.class);
+        i.putExtra("trip", (Serializable) tp);
+        startActivity(i);
     }
 
     public void setPicture(final ImageView iv, int index){

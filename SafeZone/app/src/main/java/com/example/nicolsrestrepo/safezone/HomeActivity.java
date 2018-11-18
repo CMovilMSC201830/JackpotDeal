@@ -577,7 +577,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         if(calculateDistance() <= mts_to_end){
             Toast.makeText(getBaseContext(),"¡Gracias por utilizas Safe Zone para llegar a tu destino!",Toast.LENGTH_LONG).show();
             savePicture();
-            mMap.clear();
             drawReportedEvents();
         }
 
@@ -639,7 +638,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         tripInfo.setTime(String.format("%.2f", difference));
         db.collection(USERS_PATH).document(uid).collection(TRIPS_PATH).document(nameFile).set(tripInfo);
         //db.collection("MyTrips-"+uid).document(nameFile).set(tripInfo);
-
+        mMap.clear();
 
     }
 

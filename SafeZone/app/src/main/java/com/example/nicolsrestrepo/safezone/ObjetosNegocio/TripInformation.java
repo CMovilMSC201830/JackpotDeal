@@ -3,7 +3,9 @@ package com.example.nicolsrestrepo.safezone.ObjetosNegocio;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class TripInformation {
+import java.io.Serializable;
+
+public class TripInformation implements Serializable {
 
     private String destino;
     private String distancia;
