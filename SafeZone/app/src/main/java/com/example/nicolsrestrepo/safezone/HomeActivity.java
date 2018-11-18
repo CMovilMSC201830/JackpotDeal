@@ -249,6 +249,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return false;
             }
         });
+        loadRealTimeEvents();
         
     }
 
@@ -547,7 +548,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                         tripInfo.setDestino(addressResult.getAddressLine(0));
                         tripInfo.setDistancia(String.format("%.2f", calculateDistance()/1000));
                         LatLng mitad = new LatLng((begin.latitude + end.latitude) / 2, (begin.longitude + end.longitude) / 2);
-                        mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
+                        mMap.moveCamera(CameraUpdateFactory.newLatLng(mitad));
                         routeCalculate();
                         current = new Date();
 
@@ -572,11 +573,12 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         drawReportedEvents();
     }
     private void checkIfEnd() {
-        float mts_to_end = 10;
-        float distance = calculateDistance();
+        float mts_to_end = 100;
         if(calculateDistance() <= mts_to_end){
             Toast.makeText(getBaseContext(),"¡Gracias por utilizas Safe Zone para llegar a tu destino!",Toast.LENGTH_LONG).show();
             savePicture();
+            mMap.clear();
+            drawReportedEvents();
         }
 
     }
@@ -638,13 +640,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         db.collection(USERS_PATH).document(uid).collection(TRIPS_PATH).document(nameFile).set(tripInfo);
         //db.collection("MyTrips-"+uid).document(nameFile).set(tripInfo);
 
-        mMap.clear();
-        mMap.addMarker(new MarkerOptions().position(begin)
-                .icon(BitmapDescriptorFactory
-                        .fromResource(R.drawable.carmarker)));
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(begin));
-        mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
     }
 
 
@@ -758,8 +754,12 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                         end = latLng;
                         tripInfo.setDestino("Destino Personalizado");
                         tripInfo.setDistancia(String.format("%.2f", calculateDistance() / 1000));
+                        LatLng mitad = new LatLng((begin.latitude + end.latitude) / 2, (begin.longitude + end.longitude) / 2);
+                        mMap.moveCamera(CameraUpdateFactory.newLatLng(mitad));
+                        routeCalculate();
+                        current = new Date();
                     }
-                    routeCalculate();
+
                 }
 
                 if( accion.equals( getString(R.string.action_reportarEvento) ) ){
