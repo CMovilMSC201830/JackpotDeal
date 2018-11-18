@@ -74,7 +74,7 @@ public class ReportEventActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                new DatePickerDialog(ReportEventActivity.this, date, myCalendar
+                new DatePickerDialog(ReportEventActivity.this, R.style.TimePickerTheme ,reportedDateListener, myCalendar
                         .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
                         myCalendar.get(Calendar.DAY_OF_MONTH)).show();
             }
@@ -89,7 +89,7 @@ public class ReportEventActivity extends AppCompatActivity {
                 int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
                 int minute = mcurrentTime.get(Calendar.MINUTE);
                 TimePickerDialog mTimePicker;
-                mTimePicker = new TimePickerDialog(ReportEventActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                mTimePicker = new TimePickerDialog(ReportEventActivity.this, R.style.TimePickerTheme, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
                         editText_hora.setText( selectedHour + ":" + selectedMinute);
@@ -109,7 +109,7 @@ public class ReportEventActivity extends AppCompatActivity {
                 eventInfo = new EventInformation();
                 eventInfo.setZone(editText_zona.getText().toString());
                 eventInfo.setTime(editText_hora.getText().toString());
-                eventInfo.setDate(editText_hora.getText().toString());
+                eventInfo.setDate(editText_fecha.getText().toString());
                 eventInfo.setDetails(editText_detalles.getText().toString());
                 eventInfo.setPosition(position);
                 eventInfo.setType(evento);
@@ -142,7 +142,7 @@ public class ReportEventActivity extends AppCompatActivity {
         }
     }
 
-    DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
+    DatePickerDialog.OnDateSetListener reportedDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
             // TODO Auto-generated method stub
