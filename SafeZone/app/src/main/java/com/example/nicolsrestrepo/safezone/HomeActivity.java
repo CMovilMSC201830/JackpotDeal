@@ -10,6 +10,7 @@ import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -21,6 +22,7 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,6 +30,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.nicolsrestrepo.safezone.ObjetosNegocio.EventInformation;
@@ -369,6 +373,36 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+
+            @Override
+            public View getInfoWindow(Marker arg0) {
+                return null;
+            }
+
+            @Override
+            public View getInfoContents(Marker marker) {
+                Context mContext = getApplicationContext();
+                LinearLayout info = new LinearLayout(mContext);
+                info.setOrientation(LinearLayout.VERTICAL);
+
+                TextView title = new TextView(mContext);
+                title.setTextColor(Color.BLACK);
+                title.setGravity(Gravity.CENTER);
+                title.setTypeface(null, Typeface.BOLD);
+                title.setText(marker.getTitle());
+
+                TextView snippet = new TextView(mContext);
+                snippet.setTextColor(Color.GRAY);
+                snippet.setText(marker.getSnippet());
+
+                info.addView(title);
+                info.addView(snippet);
+
+                return info;
+            }
+        });
+
 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
@@ -380,39 +414,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
         if (Utils.requestPermission(this, Manifest.permission.ACCESS_FINE_LOCATION, "Se necesita acceder a la cámara", LOCATION_PERMISSON))
             locateMap();
-
-        if( comesFromReport ){
-            Bundle bundle = getIntent().getBundleExtra("bundle");
-
-            LatLng posicionReporte = bundle.getParcelable("ubicacion");
-            String tipoDeEvento = bundle.getString("eventType");
-
-            int colorReporte = Color.GRAY;
-
-            switch (tipoDeEvento){
-                case "Hurto a personas":
-                    colorReporte = Color.argb(50, 255, 255, 0);
-                    break;
-                case "Hurto a empresas":
-                    colorReporte = Color.argb(50, 255, 255, 0);
-                    break;
-                case "Homicidio":
-                    colorReporte = Color.argb(50, 255, 255, 255);;
-                    break;
-                case "Secuestro":
-                    colorReporte = Color.argb(50, 255, 100, 110);
-                    break;
-                case "Extorsión":
-                    colorReporte = Color.argb(50, 0, 0, 255);
-                    break;
-                case "Intento de homicidio":
-                    colorReporte = Color.argb(50, 255, 0, 0);
-                    break;
-            }
-
-            markDangerZone(posicionReporte.latitude,posicionReporte.longitude,colorReporte,tipoDeEvento);
-        }
-
 
     }
 
@@ -644,11 +645,15 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
 
-    public void markDangerZone(double danger_lat, double danger_lng, int color, String evento){
+    public void markDangerZone(double danger_lat, double danger_lng, int color, EventInformation evento){
         LatLng dangerZone = new LatLng(danger_lat, danger_lng);
 
         mMap.addMarker(new MarkerOptions().position(new LatLng(danger_lat,danger_lng))
-                .title(evento)
+                .title(evento.getType())
+                .snippet(evento.getDetails() + "\n" +
+                        "Fecha: " + evento.getDate() + "\n" +
+                        "Hora: " + evento.getTime() + "\n" +
+                        "Zona: " + evento.getZone())
                 .icon(BitmapDescriptorFactory
                         .defaultMarker(BitmapDescriptorFactory.HUE_ROSE)));
 
@@ -730,7 +735,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             markDangerZone(event.getPosition().getLatitude(),
                     event.getPosition().getLongitude(),
                     colorReporte,
-                    event.getDetails());
+                    event);
         }
     }
 
