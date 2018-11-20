@@ -257,7 +257,9 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         imageButton_emergencyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Intent intent = new Intent(view.getContext(), HeatMapActivity.class);
+                intent.putExtra("location",begin);
+                startActivity(intent);
             }
         });
 

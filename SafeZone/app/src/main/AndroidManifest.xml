@@ -67,7 +67,10 @@
             android:enabled="true"
             android:exported="false" />
 
-        <activity android:name=".MyTripDetail"></activity>
+        <activity android:name=".MyTripDetail" />
+        <activity
+            android:name=".HeatMapActivity"
+            android:label="@string/title_activity_heat_map"></activity>
     </application>
 
 </manifest>
