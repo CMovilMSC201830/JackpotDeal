@@ -7,18 +7,43 @@
     android:layout_height="match_parent"
     tools:context="com.example.nicolsrestrepo.safezone.MainActivity">
 
-    <ImageView
-        android:id="@+id/imageView"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:alpha="0.6"
-        android:scaleType="centerCrop"
-        app:srcCompat="@drawable/init" />
+        android:layout_height="wrap_content"
+        android:layout_above="@id/main_bottomBar">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:alpha="0.6"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/init" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="162dp"
+            android:text="Safe Zone"
+            android:textColor="@color/blue"
+            android:textSize="50sp"
+            android:textStyle="bold"
+            app:fontFamily="@font/acme" />
+
+
+
+    </FrameLayout>
+
+
 
     <LinearLayout
+        android:id="@+id/main_bottomBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
