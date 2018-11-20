@@ -2,13 +2,17 @@
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#ff4081</color>
     <color name="yellow">#edf027</color>
     <color name="blue">#447bb6</color>
     <color name="googleblue">#0057e7</color>
     <color name="sepgrey">#dadada</color>
     <color name="white">#ffffff</color>
 
+    <color name="gradient_startColor">#35445c</color>
+    <color name="gradient_endColor">#6c88e2</color>
+
     <color name="roundcorner_background">#a1a4abaf</color>
+    <color name="roundcorner_2_background">#89d3eefd</color>
 
 </resources>

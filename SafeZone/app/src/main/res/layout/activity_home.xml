@@ -36,7 +36,7 @@
         android:layout_marginEnd="0dp"
         android:layout_marginRight="0dp"
         android:layout_marginBottom="0dp"
-        android:background="@color/blue"
+        android:background="@drawable/gradient_background"
         android:gravity="center"
         android:paddingTop="5dp"
         android:paddingBottom="5dp">
@@ -54,7 +54,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
-                android:background="@null"
+                android:background="@drawable/roundcorner_2"
                 android:scaleType="fitXY"
                 android:src="@drawable/ic_notify_contact" />
 
@@ -65,7 +65,9 @@
                 android:layout_marginRight="10dp"
                 android:text="@string/boton_notificarContacto"
                 android:textAlignment="center"
-                android:textSize="12sp" />
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -81,7 +83,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
-                android:background="@null"
+                android:background="@drawable/roundcorner_2"
                 android:scaleType="fitXY"
                 android:src="@drawable/ic_notify_event" />
 
@@ -92,7 +94,9 @@
                 android:layout_marginRight="10dp"
                 android:text="@string/boton_notificarEvento"
                 android:textAlignment="center"
-                android:textSize="12sp" />
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -108,7 +112,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
-                android:background="@null"
+                android:background="@drawable/roundcorner_2"
                 android:scaleType="fitXY"
                 android:src="@drawable/ic_emergency_button" />
 
@@ -119,7 +123,9 @@
                 android:layout_marginRight="10dp"
                 android:text="@string/boton_emergencia"
                 android:textAlignment="center"
-                android:textSize="12sp" />
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
 

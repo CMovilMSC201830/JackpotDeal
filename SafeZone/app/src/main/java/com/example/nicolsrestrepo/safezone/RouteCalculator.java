@@ -158,6 +158,7 @@ public class RouteCalculator {
 
                 PolylineOptions polylineOptions = null;
 
+                List<HashMap<String, String>> firstPath = lists.get( lists.size() - 1 );
                 List<HashMap<String, String>> lastPath = lists.get( lists.size() - 1 );
                 for (List<HashMap<String, String>> path : lists) {
                     points = new ArrayList();
@@ -179,6 +180,10 @@ public class RouteCalculator {
                         polylineOptions.width(15);
                         polylineOptions.color(Color.rgb(143, 171, 216));
                         polylineOptions.geodesic(true);
+
+                        if( !path.equals(firstPath) ){
+                            Toast.makeText(callingContext,"Ruta alterna escogida para evadir eventos peligrosos", Toast.LENGTH_SHORT).show();
+                        }
 
                         break;
                     }

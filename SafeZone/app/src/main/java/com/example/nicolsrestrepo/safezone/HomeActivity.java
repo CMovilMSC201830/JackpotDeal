@@ -17,8 +17,8 @@ import android.location.Location;
 import android.service.notification.NotificationListenerService;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -87,12 +87,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
-
 
 public class HomeActivity extends AppCompatActivity implements OnMapReadyCallback {
+
+    private final static String TAG = "Log_HomeActivity";
 
     private final static int LOCATION_PERMISSON = 0;
     private final static int REQUEST_CHECK_SETTINGS = 1;
@@ -123,7 +124,9 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private TripInformation tripInfo;
     private Date current;
+
     private List<EventInformation> reportedEvents;
+    private List<Boolean> eventsAreMarked;
 
     private ArrayList <String> alreadyCreatedListeners;
     public static ArrayList<String> interest = new ArrayList<>();
@@ -144,6 +147,24 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private HashMap<String,ListenerRegistration> listeners;
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        locateMap();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        loadRealTimeEvents();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stopLocationUpdates();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
@@ -160,13 +181,16 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         startService(new Intent(this, NotificationListener.class));
 
+        getSupportActionBar().setTitle("Safe Zone");
+
+        mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         mStorageRef = FirebaseStorage.getInstance().getReference();
-        getSupportActionBar().setTitle("Safe Zone");
-        mAuth = FirebaseAuth.getInstance();
-        reportedEvents = new ArrayList<EventInformation>();
 
-        alreadyCreatedListeners = new ArrayList<String>();
+        reportedEvents = new ArrayList<>();
+        eventsAreMarked = new ArrayList<>();
+
+        alreadyCreatedListeners = new ArrayList<>();
         comesFromReport = getIntent().hasExtra("bundle");
 
         m = null;
@@ -253,7 +277,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return false;
             }
         });
-        loadRealTimeEvents();
         
     }
 
@@ -438,18 +461,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.moveCamera(CameraUpdateFactory.zoomTo(10));
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        locateMap();
-        loadRealTimeEvents();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        stopLocationUpdates();
-    }
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -539,7 +550,8 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Address addressResult = addresses.get(0);
                     LatLng position = new LatLng(addressResult.getLatitude(), addressResult.getLongitude());
                     if (mMap != null) {
-                        mMap.clear();
+                        restartMap();
+
                         mMap.addMarker(new MarkerOptions().position(position)
                                 .title(addressString)
                                 .icon(BitmapDescriptorFactory
@@ -639,7 +651,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         tripInfo.setTime(String.format("%.2f", difference));
         db.collection(USERS_PATH).document(uid).collection(TRIPS_PATH).document(nameFile).set(tripInfo);
         //db.collection("MyTrips-"+uid).document(nameFile).set(tripInfo);
-        mMap.clear();
+        restartMap();
 
     }
 
@@ -665,6 +677,8 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .fillColor(color)
                 .clickable(true);
         mMap.addCircle(circleOptions);
+
+        Log.d(TAG,"Se pintó una zona peligrosa");
     }
 
     public void loadReportedEvents(){
@@ -695,9 +709,12 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                             Log.w("TAG ERROR", "listen:error", e);
                             return;
                         }
-
                         for (DocumentChange dc : snapshots.getDocumentChanges()) {
-                            reportedEvents.add(dc.getDocument().toObject(EventInformation.class));;
+                            EventInformation evento = dc.getDocument().toObject(EventInformation.class);
+                            if( !reportedEvents.contains(evento)){
+                                reportedEvents.add(evento);
+                                eventsAreMarked.add(false);
+                            }
                         }
                         drawReportedEvents();
                     }
@@ -706,37 +723,58 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void drawReportedEvents(){
+        int index = 0;
         for(EventInformation event: reportedEvents){
 
+            if( !eventsAreMarked.get(index) ){
+                int colorReporte = Color.GRAY;
 
-            int colorReporte = Color.GRAY;
+                switch (event.getType()){
+                    case "Hurto a personas":
+                        colorReporte = Color.argb(50, 255, 255, 0);
+                        break;
+                    case "Hurto a empresas":
+                        colorReporte = Color.argb(50, 255, 255, 0);
+                        break;
+                    case "Homicidio":
+                        colorReporte = Color.argb(50, 255, 255, 255);;
+                        break;
+                    case "Secuestro":
+                        colorReporte = Color.argb(50, 255, 100, 110);
+                        break;
+                    case "Extorsión":
+                        colorReporte = Color.argb(50, 0, 0, 255);
+                        break;
+                    case "Intento de homicidio":
+                        colorReporte = Color.argb(50, 255, 0, 0);
+                        break;
+                }
 
-            switch (event.getType()){
-                case "Hurto a personas":
-                    colorReporte = Color.argb(50, 255, 255, 0);
-                    break;
-                case "Hurto a empresas":
-                    colorReporte = Color.argb(50, 255, 255, 0);
-                    break;
-                case "Homicidio":
-                    colorReporte = Color.argb(50, 255, 255, 255);;
-                    break;
-                case "Secuestro":
-                    colorReporte = Color.argb(50, 255, 100, 110);
-                    break;
-                case "Extorsión":
-                    colorReporte = Color.argb(50, 0, 0, 255);
-                    break;
-                case "Intento de homicidio":
-                    colorReporte = Color.argb(50, 255, 0, 0);
-                    break;
+                markDangerZone(event.getPosition().getLatitude(),
+                        event.getPosition().getLongitude(),
+                        colorReporte,
+                        event);
+
+                eventsAreMarked.set(index, true);
+            }else{
+                Log.d(TAG,"Ya estaba pintado");
             }
 
-            markDangerZone(event.getPosition().getLatitude(),
-                    event.getPosition().getLongitude(),
-                    colorReporte,
-                    event);
+            index++;
         }
+    }
+
+    public void restartMap(){
+        mMap.clear();
+
+        ListIterator<Boolean> iterator = eventsAreMarked.listIterator();
+        while (iterator.hasNext()){
+            Boolean b = iterator.next();
+            iterator.set(false);
+        }
+
+        drawReportedEvents();
+
     }
 
     @Override
@@ -749,8 +787,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 if( accion.equals( getString(R.string.action_crearRuta) ) ){
                     if (mMap != null) {
-                        mMap.clear();
-                        drawReportedEvents();
+                        restartMap();
                         mMap.addMarker(new MarkerOptions().position(latLng)
                                 .title("Destino Personalizado")
                                 .icon(BitmapDescriptorFactory
