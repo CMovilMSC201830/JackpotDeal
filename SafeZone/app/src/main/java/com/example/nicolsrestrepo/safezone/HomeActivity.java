@@ -14,6 +14,7 @@ import android.graphics.Typeface;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.service.notification.NotificationListenerService;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -27,6 +28,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -109,6 +111,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ImageButton imageButton_notifyContact;
     private ImageButton imageButton_notifyEvent;
     private ImageButton imageButton_emergencyButton;
+    private Button button_verMapaCalor;
     private ImageView screenShoot;
     private LocationRequest mLocationRequest;
     private LocationCallback mLocationCallback;
@@ -204,6 +207,8 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         imageButton_notifyContact = findViewById(R.id.button_notifyContact);
         imageButton_notifyEvent = findViewById(R.id.button_notifyEvent);
         imageButton_emergencyButton = findViewById(R.id.button_emergencyButton);
+        button_verMapaCalor = findViewById(R.id.button_verMapaCalor);
+
         mLocationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -255,6 +260,15 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
         imageButton_emergencyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String phone = "123";
+                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null));
+                startActivity(intent);
+            }
+        });
+
+        button_verMapaCalor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(view.getContext(), HeatMapActivity.class);

@@ -12,7 +12,11 @@
     <color name="gradient_startColor">#35445c</color>
     <color name="gradient_endColor">#6c88e2</color>
 
+    <color name="gradient_button_startColor">#f1e64838</color>
+    <color name="gradient_button_endColor">#f0da8b64</color>
+
     <color name="roundcorner_background">#a1a4abaf</color>
     <color name="roundcorner_2_background">#89d3eefd</color>
+    <color name="roundcorner_4_background">#ead2d4d6</color>
 
 </resources>

@@ -76,7 +76,7 @@ public class Login extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
 
-        name = findViewById(R.id.loginname);
+        name = findViewById(R.id.editText_login_email);
         password = findViewById(R.id.loginpassword);
         login = findViewById(R.id.loginbtn);
 

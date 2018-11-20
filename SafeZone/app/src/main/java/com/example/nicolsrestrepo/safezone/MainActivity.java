@@ -3,17 +3,21 @@ package com.example.nicolsrestrepo.safezone;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
+
+    private TextView textView_appTitle;
 
     public Button login;
     public Button signup;
@@ -35,6 +39,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mAuth = FirebaseAuth.getInstance();
+
+        textView_appTitle = findViewById(R.id.textView_appTitle);
+
+        String text = "<font color='yellow'>Safe</font> <font color='blue'>Zone</font>";
+        textView_appTitle.setText(Html.fromHtml(text), TextView.BufferType.SPANNABLE);
 
         login=(Button) findViewById(R.id.login);
         signup=(Button) findViewById(R.id.signup);

@@ -1,75 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.widget.RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.widget.RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.nicolsrestrepo.safezone.MainActivity">
 
-    <FrameLayout
+
+    <ImageView
+        android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/main_bottomBar">
+        android:alpha="0.6"
+        android:scaleType="centerCrop"
+        app:srcCompat="@drawable/init" />
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:alpha="0.6"
-            android:scaleType="centerCrop"
-            app:srcCompat="@drawable/init" />
-
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="162dp"
-            android:text="Safe Zone"
-            android:textColor="@color/blue"
-            android:textSize="50sp"
-            android:textStyle="bold"
-            app:fontFamily="@font/acme" />
-
-
-
-    </FrameLayout>
-
+    <TextView
+        android:id="@+id/textView_appTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@id/imageView"
+        android:layout_alignLeft="@id/imageView"
+        android:layout_alignTop="@+id/imageView"
+        android:layout_alignEnd="@id/imageView"
+        android:layout_alignRight="@id/imageView"
+        android:layout_alignBottom="@id/imageView"
+        android:gravity="center"
+        android:text="Safe Zone"
+        android:textSize="50sp"
+        android:textStyle="bold"
+        app:fontFamily="@font/acme" />
 
 
     <LinearLayout
         android:id="@+id/main_bottomBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/signup"
-            android:background="@color/blue"
             android:layout_width="wrap_content"
             android:layout_height="70dp"
             android:layout_weight="1"
+            android:background="@color/blue"
             android:text="@string/signup"
-            android:textSize="20sp"
-            android:textColor="@color/white"/>
+            android:textColor="@color/white"
+            android:textSize="20sp" />
 
         <Button
             android:id="@+id/login"
             android:layout_width="wrap_content"
             android:layout_height="70dp"
-            android:background="@color/yellow"
             android:layout_alignParentLeft="true"
             android:layout_weight="1"
+            android:background="@color/yellow"
             android:text="@string/login"
-            android:textSize="20sp"/>
+            android:textSize="20sp" />
     </LinearLayout>
 
 

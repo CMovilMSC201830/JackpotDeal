@@ -26,13 +26,16 @@
                 android:layout_height="80dp"
                 android:layout_gravity="center_vertical"
                 android:scaleType="fitXY"
+                android:background="@drawable/roundcorner_4"
                 android:src="@drawable/ic_event_hurto_personas" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/boton_event_hurtoPersonas"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -48,13 +51,16 @@
                 android:layout_height="80dp"
                 android:layout_gravity="center_vertical"
                 android:scaleType="fitXY"
+                android:background="@drawable/roundcorner_4"
                 android:src="@drawable/ic_event_hurto_empresas" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/boton_event_hurtoEmpresas"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -70,13 +76,16 @@
                 android:layout_height="80dp"
                 android:layout_gravity="center_vertical"
                 android:scaleType="fitXY"
+                android:background="@drawable/roundcorner_4"
                 android:src="@drawable/ic_event_intento_homicidio" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/boton_event_intentoHomicidio"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -92,13 +101,16 @@
                 android:layout_height="80dp"
                 android:layout_gravity="center_vertical"
                 android:scaleType="fitXY"
+                android:background="@drawable/roundcorner_4"
                 android:src="@drawable/ic_event_homicidio" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/boton_event_homicidio"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -114,13 +126,16 @@
                 android:layout_height="80dp"
                 android:layout_gravity="center_vertical"
                 android:scaleType="fitXY"
+                android:background="@drawable/roundcorner_4"
                 android:src="@drawable/ic_event_secuestro" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/boton_event_secuestro"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -136,13 +151,16 @@
                 android:layout_height="80dp"
                 android:layout_gravity="center_vertical"
                 android:scaleType="fitXY"
+                android:background="@drawable/roundcorner_4"
                 android:src="@drawable/ic_event_extorsion" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/boton_event_extorsion"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:textStyle="bold"
+                android:textColor="@color/white" />
         </LinearLayout>
 
 
