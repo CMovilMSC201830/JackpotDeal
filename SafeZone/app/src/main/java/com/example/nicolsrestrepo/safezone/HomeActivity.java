@@ -318,11 +318,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         }else{
             Marker m = friendsMarkers.get(key);
-            m.remove();
-            friendsMarkers.put(key,mMap.addMarker(new MarkerOptions().position(friendPos)
-                    .title("Dejar de rastrear a "+name)
-                    .icon(BitmapDescriptorFactory
-                            .fromResource(R.drawable.friend))));
+            m.setPosition(friendPos);
         }
 
         Log.d("test2","MARKER ADDED");
