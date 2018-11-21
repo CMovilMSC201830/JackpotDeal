@@ -153,6 +153,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onResume() {
         super.onResume();
         locateMap();
+        createListeners();
     }
 
     @Override
@@ -786,6 +787,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         drawReportedEvents();
+        createListeners();
 
     }
 
